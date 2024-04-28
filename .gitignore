@@ -27,3 +27,18 @@ fp-info-cache
 # Exported BOM files
 *.xml
 *.csv
+
+build/
+.DS_Store
+
+# Virtual environment
+.venv/
+venv/
+
+# .ato directory
+.ato/
+
+# IDEs
+.vscode/
+
+*.lck

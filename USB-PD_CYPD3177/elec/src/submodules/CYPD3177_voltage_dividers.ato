@@ -1,0 +1,187 @@
+from "generics/interfaces.ato" import Power
+from "generics/vdivs.ato" import VDiv
+from "parts/switches/dip/DSHP06TSGER.ato" import DSHP06TSGER
+
+
+module VDiv_5_1K_and_1K from VDiv:
+    r_top.value = 5.1kohm +/- 1%
+    r_top.package = "0402"
+    r_top.footprint = "R0402"
+    r_top.mpn = "C25905"
+    r_bottom.value = 1kohm +/- 1%
+    r_bottom.package = "0402"
+    r_bottom.footprint = "R0402"
+    r_bottom.mpn = "C11702"
+    v_in = 0V to 3.3V
+    v_out = 0V to 3.3V
+    i_q = 0uA to 1mA
+
+
+module VDiv_5_1K_and_2_4K from VDiv:
+    r_top.value = 5.1kohm +/- 1%
+    r_top.package = "0402"
+    r_top.footprint = "R0402"
+    r_top.mpn = "C25905"
+    r_bottom.value = 2.4kohm +/- 1%
+    r_bottom.package = "0402"
+    r_bottom.footprint = "R0402"
+    r_bottom.mpn = "C25882"
+    v_in = 0V to 3.3V
+    v_out = 0V to 3.3V
+    i_q = 0uA to 1mA
+
+
+module VDiv_5_1K_and_5_1K from VDiv:
+    r_top.value = 5.1kohm +/- 1%
+    r_top.package = "0402"
+    r_top.footprint = "R0402"
+    r_top.mpn = "C25905"
+    r_bottom.value = 5.1kohm +/- 1%
+    r_bottom.package = "0402"
+    r_bottom.footprint = "R0402"
+    r_bottom.mpn = "C25905"
+    v_in = 0V to 3.3V
+    v_out = 0V to 3.3V
+    i_q = 0uA to 1mA
+
+
+module VDiv_5_1K_and_10K from VDiv:
+    r_top.value = 5.1kohm +/- 1%
+    r_top.package = "0402"
+    r_top.footprint = "R0402"
+    r_top.mpn = "C25905"
+    r_bottom.value = 10kohm +/- 1%
+    r_bottom.package = "0402"
+    r_bottom.footprint = "R0402"
+    r_bottom.mpn = "C25744"
+    v_in = 0V to 3.3V
+    v_out = 0V to 3.3V
+    i_q = 0uA to 1mA
+    
+
+module All_VDivs_With_DIP_swiches:
+    power_3_3v = new Power
+    
+    signal vbus_min
+    signal vbus_max
+    signal isnk_coarse
+    signal isnk_fine
+
+    # Select voltage:
+    # 5V -> pull down to GND
+    # 9V -> pull up 5.1K to 3.3V, pull down 1K to GND
+    # 12V -> pull up 5.1K to 3.3V, pull down 2.4K to GND
+    # 15V -> pull up 5.1K to 3.3V, pull down 5.1K to GND
+    # 19V -> pull up 5.1K to 3.3V, pull down 10K to GND
+    # 20V -> pull up to 3.3V
+
+    # add minimun voltage
+    minimum_voltage_9v_voltage_divider = new VDiv_5_1K_and_1K
+    minimum_voltage_9v_voltage_divider.power ~ power_3_3v
+    minimum_voltage_12v_voltage_divider = new VDiv_5_1K_and_2_4K
+    minimum_voltage_12v_voltage_divider.power ~ power_3_3v
+    minimum_voltage_15v_voltage_divider = new VDiv_5_1K_and_5_1K
+    minimum_voltage_15v_voltage_divider.power ~ power_3_3v
+    minimum_voltage_19v_voltage_divider = new VDiv_5_1K_and_10K
+    minimum_voltage_19v_voltage_divider.power ~ power_3_3v
+
+    # connect the minimum voltage dividers via dip switch
+    minimum_voltage_dip_switch = new DSHP06TSGER
+    minimum_voltage_dip_switch.A1 ~ vbus_min
+    minimum_voltage_dip_switch.A2 ~ vbus_min
+    minimum_voltage_dip_switch.A3 ~ vbus_min
+    minimum_voltage_dip_switch.A4 ~ vbus_min
+    minimum_voltage_dip_switch.A5 ~ vbus_min
+    minimum_voltage_dip_switch.A6 ~ vbus_min
+    minimum_voltage_dip_switch.B1 ~ power_3_3v.gnd
+    minimum_voltage_dip_switch.B2 ~ minimum_voltage_9v_voltage_divider.output.io
+    minimum_voltage_dip_switch.B3 ~ minimum_voltage_12v_voltage_divider.output.io
+    minimum_voltage_dip_switch.B4 ~ minimum_voltage_15v_voltage_divider.output.io
+    minimum_voltage_dip_switch.B5 ~ minimum_voltage_19v_voltage_divider.output.io
+    minimum_voltage_dip_switch.B6 ~ power_3_3v.vcc
+    
+
+    # add maximum voltage
+    maximum_voltage_9v_voltage_divider = new VDiv_5_1K_and_1K
+    maximum_voltage_9v_voltage_divider.power ~ power_3_3v 
+    maximum_voltage_12v_voltage_divider = new VDiv_5_1K_and_2_4K
+    maximum_voltage_12v_voltage_divider.power ~ power_3_3v
+    maximum_voltage_15v_voltage_divider = new VDiv_5_1K_and_5_1K
+    maximum_voltage_15v_voltage_divider.power ~ power_3_3v
+    maximum_voltage_19v_voltage_divider = new VDiv_5_1K_and_10K
+    maximum_voltage_19v_voltage_divider.power ~ power_3_3v
+
+    # connect the maximum voltage dividers via dip switch
+    maximum_voltage_dip_switch = new DSHP06TSGER
+    maximum_voltage_dip_switch.A1 ~ vbus_max
+    maximum_voltage_dip_switch.A2 ~ vbus_max
+    maximum_voltage_dip_switch.A3 ~ vbus_max
+    maximum_voltage_dip_switch.A4 ~ vbus_max
+    maximum_voltage_dip_switch.A5 ~ vbus_max
+    maximum_voltage_dip_switch.A6 ~ vbus_max
+    maximum_voltage_dip_switch.B1 ~ power_3_3v.vcc
+    maximum_voltage_dip_switch.B2 ~ maximum_voltage_19v_voltage_divider.output.io
+    maximum_voltage_dip_switch.B3 ~ maximum_voltage_15v_voltage_divider.output.io
+    maximum_voltage_dip_switch.B4 ~ maximum_voltage_12v_voltage_divider.output.io
+    maximum_voltage_dip_switch.B5 ~ maximum_voltage_9v_voltage_divider.output.io
+    maximum_voltage_dip_switch.B6 ~ power_3_3v.gnd
+
+
+    # add min current (coarse)
+    # 0A -> pull down to GND
+    # 1A -> pull up 5.1K to 3.3V, pull down 1K to GND
+    # 2A -> pull up 5.1K to 3.3V, pull down 2.4K to GND
+    # 3A -> pull up 5.1K to 3.3V, pull down 5.1K to GND
+    # 4A -> pull up 5.1K to 3.3V, pull down 10K to GND
+    # 5A -> pull up to 3.3V
+    coarse_current_min_1a_voltage_divider = new VDiv_5_1K_and_1K
+    coarse_current_min_1a_voltage_divider.power ~ power_3_3v
+    coarse_current_min_2a_voltage_divider = new VDiv_5_1K_and_2_4K
+    coarse_current_min_2a_voltage_divider.power ~ power_3_3v
+    coarse_current_min_3a_voltage_divider = new VDiv_5_1K_and_5_1K
+    coarse_current_min_3a_voltage_divider.power ~ power_3_3v
+    coarse_current_min_4a_voltage_divider = new VDiv_5_1K_and_10K
+    coarse_current_min_4a_voltage_divider.power ~ power_3_3v
+
+    # connect the minimum coarse current dividers via dip switch
+    coarse_current_dip_switch = new DSHP06TSGER
+    coarse_current_dip_switch.A1 ~ isnk_coarse
+    coarse_current_dip_switch.A2 ~ isnk_coarse
+    coarse_current_dip_switch.A3 ~ isnk_coarse
+    coarse_current_dip_switch.A4 ~ isnk_coarse
+    coarse_current_dip_switch.A5 ~ isnk_coarse
+    coarse_current_dip_switch.A6 ~ isnk_coarse
+    coarse_current_dip_switch.B1 ~ power_3_3v.gnd
+    coarse_current_dip_switch.B2 ~ coarse_current_min_1a_voltage_divider.output.io
+    coarse_current_dip_switch.B3 ~ coarse_current_min_2a_voltage_divider.output.io
+    coarse_current_dip_switch.B4 ~ coarse_current_min_3a_voltage_divider.output.io
+    coarse_current_dip_switch.B5 ~ coarse_current_min_4a_voltage_divider.output.io
+    coarse_current_dip_switch.B6 ~ power_3_3v.vcc
+    
+
+    # add min current (fine)
+    # 0mA -> pull down to GND
+    # 250mA -> pull up 5.1K to 3.3V, pull down 1K to GND
+    # 500mA -> pull up 5.1K to 3.3V, pull down 2.4K to GND
+    # 750mA -> pull up 5.1K to 3.3V, pull down 5.1K to GND
+    # 900mA -> pull up to 3.3V
+    fine_current_min_250ma_voltage_divider = new VDiv_5_1K_and_1K
+    fine_current_min_250ma_voltage_divider.power ~ power_3_3v
+    fine_current_min_500ma_voltage_divider = new VDiv_5_1K_and_2_4K
+    fine_current_min_500ma_voltage_divider.power ~ power_3_3v
+    fine_current_min_750ma_voltage_divider = new VDiv_5_1K_and_5_1K    
+    fine_current_min_750ma_voltage_divider.power ~ power_3_3v
+
+    # connect the minimum fine current dividers via dip switch
+    fine_current_dip_switch = new DSHP06TSGER
+    fine_current_dip_switch.A1 ~ isnk_fine
+    fine_current_dip_switch.A2 ~ isnk_fine
+    fine_current_dip_switch.A3 ~ isnk_fine
+    fine_current_dip_switch.A4 ~ isnk_fine
+    fine_current_dip_switch.A5 ~ isnk_fine
+    fine_current_dip_switch.A6 ~ isnk_fine
+    fine_current_dip_switch.B2 ~ power_3_3v.vcc 
+    fine_current_dip_switch.B3 ~ fine_current_min_750ma_voltage_divider.output.io
+    fine_current_dip_switch.B4 ~ fine_current_min_500ma_voltage_divider.output.io
+    fine_current_dip_switch.B5 ~ fine_current_min_250ma_voltage_divider.output.io
+    fine_current_dip_switch.B6 ~ power_3_3v.gnd

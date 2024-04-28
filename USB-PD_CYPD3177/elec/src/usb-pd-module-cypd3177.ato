@@ -1,0 +1,99 @@
+from "generics/interfaces.ato" import I2C, USB_PD, Power
+from "generics/vdivs.ato" import VDiv
+from "submodules/CYPD3177_WithCoreParts.ato" import CYPD3177_WithCoreParts
+from "submodules/CYPD3177_voltage_dividers.ato" import All_VDivs_With_DIP_swiches, VDiv_5_1K_and_1K, VDiv_5_1K_and_2_4K
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_7P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
+from "parts/test_points.ato" import TestPoint_Pad_D_1_5mm
+
+
+module CYPD3177_min_9V_2A from CYPD3177_WithCoreParts:
+    """
+    This is a module for the CYPD3177, where the CYPD3177 is setup to request at least 9V at 2A from the power supply.
+    If the power supply cannot provide this, the CYPD3177 will give out via SAVE_PWR 5V at 900mA.
+    """
+    # Request 9V (min)
+    voltage_request_voltage_divider = new VDiv_5_1K_and_1K
+    voltage_request_voltage_divider.power ~ power_3_3v
+    voltage_request_voltage_divider.output.io ~ ic.VBUS_MIN
+
+    # Request 20V (max) (via pull up to 3.3V)
+    ic.VBUS_MAX ~ power_3_3v.vcc
+
+    # Request 2A (min)
+    current_request_voltage_divider = new VDiv_5_1K_and_2_4K
+    current_request_voltage_divider.power ~ power_3_3v
+    current_request_voltage_divider.output.io ~ ic.ISNK_COARSE
+
+    # Request +0mA (via pull down to GND)
+    ic.ISNK_FINE ~ power.gnd
+    
+
+
+module CYPD3177_dev_module from CYPD3177_WithCoreParts:
+    """
+    This is a development module, which can set any minimum & maximum voltage and minimum current.
+    """
+
+    # add voltage dividers and dip switches to set the requested voltage and current
+    voltage_dividers_and_dip_switches = new All_VDivs_With_DIP_swiches
+    voltage_dividers_and_dip_switches.power_3_3v ~ power_3_3v
+    voltage_dividers_and_dip_switches.vbus_min ~ ic.VBUS_MIN
+    voltage_dividers_and_dip_switches.vbus_max ~ ic.VBUS_MAX
+    voltage_dividers_and_dip_switches.isnk_coarse ~ ic.ISNK_COARSE
+    voltage_dividers_and_dip_switches.isnk_fine ~ ic.ISNK_FINE
+
+    # add screw terminal for external components
+    # External accessible pins:
+    # - VBUS_IN
+    # - USB PD OUT
+    # - Safe 5V OUT
+    # - GND
+    # - CC1
+    # - CC2
+    # - FAULT
+    screw_terminal = new ScrewTerminal_7P_2_54mm
+    screw_terminal._1 ~ ic.VBUS_IN
+    screw_terminal._2 ~ power_out_vbus_load_switch.power_out.vcc
+    screw_terminal._3 ~ power_out_5v_load_switch.power_out.vcc
+    screw_terminal._4 ~ power.gnd
+    screw_terminal._5 ~ ic.CC1
+    screw_terminal._6 ~ ic.CC2
+    screw_terminal._7 ~ ic.FAULT
+    
+    # Pads which are accessible via mini pads on pcb (for testing and soldering)
+    # - D+
+    # - D-
+    # - 3.3V
+    # - 1.8V
+    # - SDA
+    # - SCL
+    # - INT
+    # - GPIO 1
+    # - FLIP
+    test_pad_1 = new TestPoint_Pad_D_1_5mm
+    test_pad_1.pad ~ power.gnd
+    test_pad_2 = new TestPoint_Pad_D_1_5mm
+    test_pad_2.pad ~ ic.Dplus
+    test_pad_3 = new TestPoint_Pad_D_1_5mm
+    test_pad_3.pad ~ ic.Dminus
+    test_pad_4 = new TestPoint_Pad_D_1_5mm
+    test_pad_4.pad ~ power_3_3v.vcc
+    test_pad_5 = new TestPoint_Pad_D_1_5mm
+    test_pad_5.pad ~ power_1_8v.vcc
+    test_pad_6 = new TestPoint_Pad_D_1_5mm
+    test_pad_6.pad ~ ic.HPI_SDA
+    test_pad_7 = new TestPoint_Pad_D_1_5mm
+    test_pad_7.pad ~ ic.HPI_SCL
+    test_pad_8 = new TestPoint_Pad_D_1_5mm
+    test_pad_8.pad ~ ic.HPI_INT
+    test_pad_9 = new TestPoint_Pad_D_1_5mm
+    test_pad_9.pad ~ ic.GPIO_1
+    test_pad_10 = new TestPoint_Pad_D_1_5mm
+    test_pad_10.pad ~ ic.FLIP
+
+    # add M3 mounting holes (4x)
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
+    mounting_hole_3 = new MountingHole_M3
+    mounting_hole_4 = new MountingHole_M3
