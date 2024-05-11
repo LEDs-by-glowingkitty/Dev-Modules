@@ -1,6 +1,6 @@
-from "generics/interfaces.ato" import Power 
+from "generics/interfaces.ato" import Power
 from "generics/resistors.ato" import Resistor
-from "parts/mosfets/AO3401A.ato" import AO3401A 
+from "parts/mosfets/AO3401A.ato" import AO3401A
 
 
 module CYPD3177_LoadSwitchSafe5V:

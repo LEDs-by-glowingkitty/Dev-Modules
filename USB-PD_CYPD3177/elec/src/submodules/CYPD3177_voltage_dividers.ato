@@ -57,11 +57,11 @@ module VDiv_5_1K_and_10K from VDiv:
     v_in = 0V to 3.3V
     v_out = 0V to 3.3V
     i_q = 0uA to 1mA
-    
+
 
 module All_VDivs_With_DIP_swiches:
     power_3_3v = new Power
-    
+
     signal vbus_min
     signal vbus_max
     signal isnk_coarse
@@ -99,11 +99,11 @@ module All_VDivs_With_DIP_swiches:
     minimum_voltage_dip_switch.B4 ~ minimum_voltage_15v_voltage_divider.output.io
     minimum_voltage_dip_switch.B5 ~ minimum_voltage_19v_voltage_divider.output.io
     minimum_voltage_dip_switch.B6 ~ power_3_3v.vcc
-    
+
 
     # add maximum voltage
     maximum_voltage_9v_voltage_divider = new VDiv_5_1K_and_1K
-    maximum_voltage_9v_voltage_divider.power ~ power_3_3v 
+    maximum_voltage_9v_voltage_divider.power ~ power_3_3v
     maximum_voltage_12v_voltage_divider = new VDiv_5_1K_and_2_4K
     maximum_voltage_12v_voltage_divider.power ~ power_3_3v
     maximum_voltage_15v_voltage_divider = new VDiv_5_1K_and_5_1K
@@ -157,7 +157,7 @@ module All_VDivs_With_DIP_swiches:
     coarse_current_dip_switch.B4 ~ coarse_current_min_3a_voltage_divider.output.io
     coarse_current_dip_switch.B5 ~ coarse_current_min_4a_voltage_divider.output.io
     coarse_current_dip_switch.B6 ~ power_3_3v.vcc
-    
+
 
     # add min current (fine)
     # 0mA -> pull down to GND
@@ -169,7 +169,7 @@ module All_VDivs_With_DIP_swiches:
     fine_current_min_250ma_voltage_divider.power ~ power_3_3v
     fine_current_min_500ma_voltage_divider = new VDiv_5_1K_and_2_4K
     fine_current_min_500ma_voltage_divider.power ~ power_3_3v
-    fine_current_min_750ma_voltage_divider = new VDiv_5_1K_and_5_1K    
+    fine_current_min_750ma_voltage_divider = new VDiv_5_1K_and_5_1K
     fine_current_min_750ma_voltage_divider.power ~ power_3_3v
 
     # connect the minimum fine current dividers via dip switch
@@ -180,7 +180,7 @@ module All_VDivs_With_DIP_swiches:
     fine_current_dip_switch.A4 ~ isnk_fine
     fine_current_dip_switch.A5 ~ isnk_fine
     fine_current_dip_switch.A6 ~ isnk_fine
-    fine_current_dip_switch.B2 ~ power_3_3v.vcc 
+    fine_current_dip_switch.B2 ~ power_3_3v.vcc
     fine_current_dip_switch.B3 ~ fine_current_min_750ma_voltage_divider.output.io
     fine_current_dip_switch.B4 ~ fine_current_min_500ma_voltage_divider.output.io
     fine_current_dip_switch.B5 ~ fine_current_min_250ma_voltage_divider.output.io

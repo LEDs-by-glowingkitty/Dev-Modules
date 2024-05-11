@@ -27,7 +27,7 @@ module CYPD3177_min_9V_2A from CYPD3177_WithCoreParts:
 
     # Request +0mA (via pull down to GND)
     ic.ISNK_FINE ~ power.gnd
-    
+
 
 
 module CYPD3177_dev_module from CYPD3177_WithCoreParts:
@@ -60,7 +60,7 @@ module CYPD3177_dev_module from CYPD3177_WithCoreParts:
     screw_terminal._5 ~ ic.CC1
     screw_terminal._6 ~ ic.CC2
     screw_terminal._7 ~ ic.FAULT
-    
+
     # Pads which are accessible via mini pads on pcb (for testing and soldering)
     # - D+
     # - D-
