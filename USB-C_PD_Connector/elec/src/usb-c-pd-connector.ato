@@ -1,0 +1,94 @@
+from "generics/interfaces.ato" import Power, USB2, USB_PD
+
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_8P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
+from "parts/test_points.ato" import TestPoint_Pad_D_1_5mm
+
+
+component USB_C_Connector_5A:
+    """
+    This is a USB-C connector with 5A current rating.
+    It's made for USB PD applications that can deliver up to 100W of power at 20V and 5A.
+    If you don't need the 5A current rating, you should probably use a cheaper USB-C connector without the 5A rating.
+    Datasheet: https://datasheet.lcsc.com/lcsc/2108131930_Korean-Hroparts-Elec-TYPE-C-31-M-22_C530612.pdf
+    """
+
+    # component TYPE-C-31-M-22
+    footprint = "USB-C-SMD_TYPE-C-31-M-22"
+    lcsc_id = "C530612"
+    mpn = "C530612"
+
+    # add specs
+    v_in = 4.5V to 20.1V
+    v_out = 4.5V to 20.1V
+
+    # pins
+    signal GND ~ pin 1
+    signal VBUS ~ pin 2
+    signal SBU2 ~ pin 3
+    signal CC1 ~ pin 4
+    signal DN2 ~ pin 5
+    signal DP1 ~ pin 6
+    signal DN1 ~ pin 7
+    signal DP2 ~ pin 8
+    signal SBU1 ~ pin 9
+    signal CC2 ~ pin 10
+    VBUS ~ pin 11
+    GND ~ pin 12
+    signal SHELL ~ pin 13
+    SHELL ~ pin 14
+    SHELL ~ pin 15
+    SHELL ~ pin 16
+
+    # Ground the shell of the connector
+    SHELL ~ GND
+
+    # Add a VBUS power supply
+    power = new Power
+    power.vcc ~ VBUS
+    power.gnd ~ GND
+
+    # Add a single D+ and D- signal
+    signal dplus ~ DP1
+    signal dminus ~ DN1
+    dplus ~ DP2
+    dminus ~ DN2
+
+    # Add USB2
+    usb = new USB2
+    usb.dp ~ dplus
+    usb.dm ~ dminus
+    usb.gnd ~ GND
+
+    # Add USB PD
+    usb_pd = new USB_PD
+    usb_pd.dp ~ dplus
+    usb_pd.dm ~ dminus
+    usb_pd.vbus ~ VBUS
+    usb_pd.gnd ~ GND
+    usb_pd.cc1 ~ CC1
+    usb_pd.cc2 ~ CC2
+
+
+
+module USB_C_PD_connector_dev_module:
+    """
+    This is a development module, where the USB-C connector is broken out to a screw terminal.
+    """
+
+    # add USB-C connector
+    usb_c = new USB_C_Connector_5A
+
+    # add screw terminal to connect to other parts
+    screw_terminal = new ScrewTerminal_8P_2_54mm
+    screw_terminal._1 ~ usb_c.VBUS
+    screw_terminal._2 ~ usb_c.GND
+    screw_terminal._3 ~ usb_c.CC1
+    screw_terminal._4 ~ usb_c.CC2
+    screw_terminal._5 ~ usb_c.dplus
+    screw_terminal._6 ~ usb_c.dminus
+    screw_terminal._7 ~ usb_c.SBU1
+    screw_terminal._8 ~ usb_c.SBU2
+
+    # add M3 mounting hole
+    mounting_hole = new MountingHole_M3
