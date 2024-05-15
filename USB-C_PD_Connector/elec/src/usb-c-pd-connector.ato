@@ -90,5 +90,6 @@ module USB_C_PD_connector_dev_module:
     screw_terminal._7 ~ usb_c.SBU1
     screw_terminal._8 ~ usb_c.SBU2
 
-    # add M3 mounting hole
-    mounting_hole = new MountingHole_M3
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
