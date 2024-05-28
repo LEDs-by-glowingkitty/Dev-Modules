@@ -14,6 +14,7 @@ module CYPD3177_WithCoreParts:
     """
     # Add power
     power_in = new Power
+    power_in.voltage = 0V to 21V
     power_out_vbus = new Power
     power_out_5v = new Power
     power_3_3v = new Power
@@ -30,21 +31,30 @@ module CYPD3177_WithCoreParts:
     # Add the ic
     ic = new CYPD3177
     ic.power_in ~ power_in
+    ic.power_in.voltage = power_in.voltage
     ic.power_out_vbus ~ power_out_vbus
     ic.power_3_3v ~ power_3_3v
     ic.power_1_8v ~ power_1_8v
+
+    # Add the output voltages that the CYPD3177 generates
+    power_3_3v.voltage = ic.power_3_3v.voltage
+    power_1_8v.voltage = ic.power_1_8v.voltage
+    power_out_vbus.voltage = ic.power_out_vbus.voltage
+    power_out_5v.voltage = ic.power_out_5v.voltage
 
     # Add a 100W load switch for the VDC_OUT
     power_out_vbus_load_switch = new CYPD3177_LoadSwitch100W
     power_out_vbus_load_switch.en ~ ic.VBUS_FET_EN
     power_out_vbus_load_switch.power_in ~ power_in
     power_out_vbus_load_switch.power_out ~ power_out_vbus
+    assert power_out_vbus.voltage within 4.8V to 21V
 
     # Add the 5V Safe Output load switch
     power_out_5v_load_switch = new CYPD3177_LoadSwitchSafe5V
     power_out_5v_load_switch.en ~ ic.SAFE_PWR_EN
     power_out_5v_load_switch.power_in ~ power_in
     power_out_5v_load_switch.power_out ~ power_out_5v
+    assert power_out_5v.voltage within 4.8V to 5.2V
 
     # Add 390pF caps for the CC1 and CC2 pins (as in evaluation board schematic)
     cc1_cap = new Capacitor

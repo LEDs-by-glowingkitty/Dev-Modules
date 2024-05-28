@@ -38,20 +38,20 @@ component CYPD3177:
     # pins
     signal VBUS_MIN ~ pin 1         # Connect a resistor divider on this to 3.3 V (from the VDDD pin) to indicate the minimum voltage needed by the system from the attached power adapter.
     signal VBUS_MAX ~ pin 2         # Connect a resistor divider on this to 3.3 V (from the VDDD pin) to indicate the maximum voltage needed by the system from the attached power adapter.
-    signal VBUS_FET_EN ~ pin 3      # Connect this signal to the gate of a FET through a series resistor. This pin is the output of a PMOS FET gate driver that is slew-rate controlled. 
+    signal VBUS_FET_EN ~ pin 3      # Connect this signal to the gate of a FET through a series resistor. This pin is the output of a PMOS FET gate driver that is slew-rate controlled.
                                     # This signal is enabled when the EZ-PD BCR device successfully negotiates a power contract within the requested range.
-    signal SAFE_PWR_EN ~ pin 4      # Connect this signal to the gate of a FET through a series resistor. This pin is the output of a PMOS FET gate driver. 
+    signal SAFE_PWR_EN ~ pin 4      # Connect this signal to the gate of a FET through a series resistor. This pin is the output of a PMOS FET gate driver.
                                     # This signal is enabled when the EZ-PD BCR device fails to negotiate for higher power and defaults to 5 V.
     signal ISNK_COARSE ~ pin 5      # Connect a resistor divider on these pins to 3.3 V (from the VDDD pin) to set the operating current requested from the power adapter.
     signal ISNK_FINE ~ pin 6        # same as ISNK_COARSE
     signal HPI_INT ~ pin 7          # Active LOW HPI Interrupt pin
     signal GPIO_1 ~ pin 8           # Additional GPIO that can be set up over the HPI interface.
     signal FAULT ~ pin 9            # The EZ-PD BCR device pulls this line high if the power adapter cannot supply the required voltage or current or if an OVP event was detected. The pin is low otherwise.
-    signal FLIP ~ pin 10            # The EZ-PD BCR device pulls this line low if no device is attached or if CC polarity is un-flipped (CC1 connected). 
-                                    # If a device is attached on CC2 (polarity is flipped), the EZ-PD BCR device pulls this line high. 
-                                    # This is an open drain I/O that requires an external pull-up resistor. 
+    signal FLIP ~ pin 10            # The EZ-PD BCR device pulls this line low if no device is attached or if CC polarity is un-flipped (CC1 connected).
+                                    # If a device is attached on CC2 (polarity is flipped), the EZ-PD BCR device pulls this line high.
+                                    # This is an open drain I/O that requires an external pull-up resistor.
                                     # The presence or the value of the pull-up resistor connected to this pin determines the data capability reported in the UFP Vendor Data Object (VDO) by the BCR device to the Downstream Facing Port (DFP).
-                                    # If there is no pull-up resistor on this pin or if its value is less than or equal to 4.7 kΩ, then the UFP VDO data capability bit is set to 1, which correlates to the port being data capable. 
+                                    # If there is no pull-up resistor on this pin or if its value is less than or equal to 4.7 kΩ, then the UFP VDO data capability bit is set to 1, which correlates to the port being data capable.
                                     # If the value of the pull-up resistor is 50 kΩ, then the UFP VDO data capability bit is set to 0, which correlates to the port not being data capable.
     signal VDC_OUT ~ pin 11         # Connect this pin to the output of the PFETs controlled by the VBUS_FET_EN. This is used for monitoring the VBUS output. This is the power output of the system.
     signal HPI_SDA ~ pin 12         # This is an I2C slave interface provided for a host processor to control and monitor the EZ-PD BCR device. For more details, refer to the HPI Specification for EZ-PD BCR device.
@@ -89,12 +89,25 @@ component CYPD3177:
     power_in = new Power
     power_in.vcc ~ VBUS_IN
     power_in.gnd ~ GND
+    power_in.voltage = 0V to 21V
     power_out_vbus = new Power
     power_out_vbus.vcc ~ VDC_OUT
     power_out_vbus.gnd ~ GND
+    power_out_vbus.voltage = 4.8V to 21V
+    power_out_5v = new Power
+    power_out_5v.gnd ~ GND
+    power_out_5v.voltage = 4.8V to 5.2V
     power_3_3v = new Power
     power_3_3v.vcc ~ VDDD
     power_3_3v.gnd ~ GND
+    power_3_3v.voltage = 3.3V
     power_1_8v = new Power
     power_1_8v.vcc ~ VCCD
     power_1_8v.gnd ~ GND
+    power_1_8v.voltage = 1.8V
+
+    # add checks based on the datasheet
+    assert power_in.voltage within 0V to 30V
+    assert power_out_vbus.voltage within 4.8V to 21V
+    assert power_3_3v.voltage within 3.0V to 5.5V
+    assert power_1_8v.voltage within 1.7V to 1.9V

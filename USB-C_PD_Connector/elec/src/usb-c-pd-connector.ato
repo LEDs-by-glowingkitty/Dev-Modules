@@ -18,10 +18,6 @@ component USB_C_Connector_5A:
     lcsc_id = "C530612"
     mpn = "C530612"
 
-    # add specs
-    v_in = 4.5V to 20.1V
-    v_out = 4.5V to 20.1V
-
     # pins
     signal GND ~ pin 1
     signal VBUS ~ pin 2
@@ -47,6 +43,8 @@ component USB_C_Connector_5A:
     power = new Power
     power.vcc ~ VBUS
     power.gnd ~ GND
+    power.voltage = 0V to 21V
+    power.current = 0A to 5A
 
     # Add a single D+ and D- signal
     signal dplus ~ DP1
@@ -69,6 +67,9 @@ component USB_C_Connector_5A:
     usb_pd.cc1 ~ CC1
     usb_pd.cc2 ~ CC2
 
+    # add checks based on datasheet
+    assert power.voltage within 0V to 100V
+    assert power.current within 0A to 5A
 
 
 module USB_C_PD_connector_dev_module:

@@ -12,6 +12,7 @@ module CYPD3177_min_9V_2A from CYPD3177_WithCoreParts:
     This is a module for the CYPD3177, where the CYPD3177 is setup to request at least 9V at 2A from the power supply.
     If the power supply cannot provide this, the CYPD3177 will give out via SAVE_PWR 5V at 900mA.
     """
+
     # Request 9V (min)
     voltage_request_voltage_divider = new VDiv_5_1K_and_1K
     voltage_request_voltage_divider.power ~ power_3_3v
@@ -38,6 +39,7 @@ module CYPD3177_dev_module from CYPD3177_WithCoreParts:
     # add voltage dividers and dip switches to set the requested voltage and current
     voltage_dividers_and_dip_switches = new All_VDivs_With_DIP_swiches
     voltage_dividers_and_dip_switches.power_3_3v ~ power_3_3v
+    voltage_dividers_and_dip_switches.power_3_3v.voltage = power_3_3v.voltage
     voltage_dividers_and_dip_switches.vbus_min ~ ic.VBUS_MIN
     voltage_dividers_and_dip_switches.vbus_max ~ ic.VBUS_MAX
     voltage_dividers_and_dip_switches.isnk_coarse ~ ic.ISNK_COARSE
