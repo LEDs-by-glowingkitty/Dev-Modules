@@ -1,0 +1,39 @@
+from "generics/interfaces.ato" import Power
+from "generics/capacitors.ato" import Capacitor
+
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_4P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
+
+
+component Capacitor_1000uF from Capacitor:
+    footprint = "CAP-SMD_BD10.0-L10.3-W10.3-LS10.9-FD"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Nichicon-UWT1A102MNL1GS_C445078.pdf"
+    lcsc_id = "C445078"
+    mpn = "C445078"
+    value = 1000uF +/- 20%
+    ripple_current = 310mA
+    ripple_frequency = 120Hz
+
+    # Define the voltages
+    power.voltage = 0V
+    voltage_range = 0V to 10V
+
+    assert power.voltage within voltage_range
+
+
+module Capacitor_1000uF_dev_module:
+    """
+    This is a development module, where the big cap is accessible for testing.
+    """
+    capacitor = new Capacitor_1000uF
+
+    # add screw terminal to connect to other parts
+    screw_terminal = new ScrewTerminal_4P_2_54mm
+    screw_terminal._1 ~ capacitor.power.vcc
+    screw_terminal._2 ~ capacitor.power.vcc
+    screw_terminal._3 ~ capacitor.power.gnd
+    screw_terminal._4 ~ capacitor.power.gnd
+
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3

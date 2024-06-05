@@ -1,0 +1,6 @@
+component MountingHole_M3:
+    """
+    This is a hole to fit an M3 screw. It is 3.2mm in diameter.
+    """
+    footprint = "MountingHole_3.2mm_M3"
+    mpn = "0"

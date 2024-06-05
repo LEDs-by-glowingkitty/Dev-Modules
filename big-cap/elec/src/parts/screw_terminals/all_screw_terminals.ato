@@ -1,0 +1,7 @@
+from "parts/screw_terminals/XY308_2_54_4P.ato" import XY308_2_54_4P
+
+
+module ScrewTerminal_4P_2_54mm from XY308_2_54_4P:
+    """
+    This is a 4-pin screw terminal block with 2.54mm pitch.
+    """
