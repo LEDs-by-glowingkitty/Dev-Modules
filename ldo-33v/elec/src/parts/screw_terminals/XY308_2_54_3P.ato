@@ -1,0 +1,11 @@
+component XY308_2_54_3P:
+    # component XY308_minus_2_period_54_minus_3P
+    footprint = "CONN-TH_XY308-2.54-3P"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2005271132_Ningbo-Xinlaiya-Elec--XY308-2-54-3P_C557686.pdf"
+    lcsc_id = "C557686"
+    mpn = "C557686"
+    # pins
+    signal _1 ~ pin 1
+    signal _2 ~ pin 2
+    signal _3 ~ pin 3
+

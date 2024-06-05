@@ -1,0 +1,7 @@
+from "parts/screw_terminals/XY308_2_54_3P.ato" import XY308_2_54_3P
+
+
+module ScrewTerminal_3P_2_54mm from XY308_2_54_3P:
+    """
+    This is a 3-pin screw terminal block with 2.54mm pitch.
+    """

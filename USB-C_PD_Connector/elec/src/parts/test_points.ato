@@ -1,8 +1,0 @@
-component TestPoint_Pad_D_1_5mm:
-    """
-    This is a test point with a pad diameter of 1.5mm.
-    """
-    footprint = "TestPoint_Pad_D1.5mm"
-    mpn = "0"
-
-    signal pad ~ pin 1

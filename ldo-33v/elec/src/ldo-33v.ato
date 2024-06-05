@@ -1,0 +1,78 @@
+from "generics/regulators.ato" import LDO
+from "generics/interfaces.ato" import Power
+from "generics/capacitors.ato" import Capacitor
+
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_3P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
+
+
+component _AMS1117_3__3:
+    footprint = "SOT-223-3_L6.5-W3.4-P2.30-LS7.0-BR"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_Advanced-Monolithic-Systems-AMS1117-3-3_C6186.pdf"
+    lcsc_id = "C6186"
+    mpn = "C6186"
+
+    # pins
+    signal GND ~ pin 1
+    signal VOUT ~ pin 2
+    signal VIN ~ pin 3
+    VOUT ~ pin 4
+
+    # Connect the power pins
+    power_in = new Power
+    power_out = new Power
+    VIN ~ power_in.vcc
+    GND ~ power_in.gnd
+    GND ~ power_out.gnd
+    VOUT ~ power_out.vcc
+
+    # Define the power specs
+    power_in.voltage = 0V
+    power_out.current = 0A
+    power_out.voltage = 3.201V to 3.399V
+
+    # Recommmended maximum input voltage is 5V, absolute maximum is 15V
+    assert power_in.voltage within 4.6V to 15V
+
+    # Can deliver up to 1A of current
+    assert power_out.current within 0A to 1A
+
+
+component AMS1117_3__3 from _AMS1117_3__3:
+    """
+    This is a 3.3V LDO regulator, including all required capacitors.
+    """
+    # add input capacitor
+    input_cap = new Capacitor
+    input_cap.value = 10uF +/- 20%
+    input_cap.package = "0603"
+    input_cap.power ~ power_in
+
+    # add output capacitor
+    output_cap = new Capacitor
+    output_cap.value = 10uF +/- 20%
+    output_cap.package = "0603"
+    output_cap.power ~ power_out
+
+
+module AMS1117_3__3_dev_module:
+    """
+    This is a development module, where the LDO is accessible for testing.
+    """
+    ldo = new AMS1117_3__3
+
+    # add screw terminal to connect to other parts
+    screw_terminal = new ScrewTerminal_3P_2_54mm
+    screw_terminal._1 ~ ldo.power_in.vcc
+    screw_terminal._2 ~ ldo.power_out.vcc
+    screw_terminal._3 ~ ldo.power_in.gnd
+
+    # add power
+    power_in = new Power
+    power_in.voltage = 5V
+    power_in ~ ldo.power_in
+    ldo.power_in.voltage = power_in.voltage
+
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
