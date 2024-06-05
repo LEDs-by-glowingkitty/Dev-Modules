@@ -6,11 +6,12 @@ component CYPD3177:
     It can negotiate power delivery with a USB-PD power supply, with an output voltage of 5V to 20V and a current of up to 5A (100W max).
     It also has a SAFE_PWR output, which can output 5V at 900mA, if the negotiation of USB PD failed (because the device is connected to a non-PD power supply).
     The requested voltage and amps are set via resistors.
-    Datasheet: https://datasheet.lcsc.com/lcsc/2208051100_Cypress-SeDmicon-CYPD3177-24LQXQ_C2959321.pdf
     """
 
     # component CYPD3177-24LQXQ_C2959321
     footprint = "TQFN-24_L4.0-W4.0-P0.50-TL-EP2.8"
+    datasheet = "https://www.infineon.com/dgdl/Infineon-EZ-PD_BCR_Datasheet_USB_Type-C_Port_Controller_for_Power_Sinks-DataSheet-v03_00-EN.pdf?fileId=8ac78c8c7d0d8da4017d0ee7ce9d70ad"
+    evaluation_guide = "https://www.infineon.com/dgdl/Infineon-CY4533_EZ-PD_Barrel_Connector_Replacement_EVK_Guide-UserManual-v01_00-EN.pdf?fileId=8ac78c8c7d0d8da4017d0f013aac1887"
     lcsc_id = "C2959321"
     mpn = "C2959321"
 
