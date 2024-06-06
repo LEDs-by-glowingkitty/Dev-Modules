@@ -1,0 +1,117 @@
+from "generics/interfaces.ato" import Power, Pair
+from "generics/resistors.ato" import Resistor
+from "generics/capacitors.ato" import Capacitor
+
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_7P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
+
+
+component _SN74LVC2T45DCUR:
+    """
+    This is a levelshifter from Texas Instruments.
+    """
+    # component SN74LVC2T45DCUR
+    footprint = "VSSOP-8_L2.4-W2.1-P0.50-LS3.2-BR"
+    datasheet = "https://www.ti.com/lit/ds/symlink/sn74lvc2t45.pdf"
+    lcsc_id = "C15741"
+    mpn = "C15741"
+    # pins
+    signal VCCA ~ pin 1
+    signal A1 ~ pin 2
+    signal A2 ~ pin 3
+    signal GND ~ pin 4
+    signal DIR ~ pin 5
+    signal B2 ~ pin 6
+    signal B1 ~ pin 7
+    signal VCCB ~ pin 8
+
+    # Set direction from B to A
+    DIR ~ GND
+
+    power_in = new Power
+    power_in.voltage = 0V
+    power_in.vcc ~ VCCB
+    power_in.gnd ~ GND
+
+    power_out = new Power
+    power_out.voltage = 0V
+    power_out.vcc ~ VCCA
+    power_out.gnd ~ GND
+
+    # check power specs
+    assert power_in.voltage within 1.65V to 5.5V
+    assert power_out.voltage within 1.65V to 5.5V
+
+
+module SN74LVC2T45DCUR:
+    # add power interfaces
+    power_in = new Power
+    power_out = new Power
+    power_in.gnd ~ power_out.gnd
+    power_in.voltage = 0V
+    power_out.voltage = 0V
+
+    # add IC
+    ic = new _SN74LVC2T45DCUR
+    ic.power_in ~ power_in
+    ic.power_out ~ power_out
+    ic.power_in.voltage = power_in.voltage
+    ic.power_out.voltage = power_out.voltage
+
+    # add bypass caps
+    power_in_capacitor = new Capacitor
+    power_in_capacitor.value = 0.1uF +/- 10%
+    power_in_capacitor.package = "0402"
+    power_in_capacitor.power ~ power_in
+
+    power_out_capacitor = new Capacitor
+    power_out_capacitor.value = 0.1uF +/- 10%
+    power_out_capacitor.package = "0402"
+    power_out_capacitor.power ~ power_out
+
+    # Out
+    data_in_1_resistor = new Resistor
+    data_in_1_resistor.value = 62ohm +/- 1%
+    data_in_1_resistor.package = "0402"
+    signal_out_1 = new Pair
+    signal_out_1.io ~ data_in_1_resistor.p1; data_in_1_resistor.p2 ~ ic.A1
+    signal_out_1.gnd ~ power_out.gnd
+
+    data_in_2_resistor = new Resistor
+    data_in_2_resistor.value = 62ohm +/- 1%
+    data_in_2_resistor.package = "0402"
+    signal_out_2 = new Pair
+    signal_out_2.io ~ data_in_2_resistor.p1; data_in_2_resistor.p2 ~ ic.A2
+    signal_out_2.gnd ~ power_out.gnd
+
+    # In
+    signal_in_1 = new Pair
+    signal_in_1.io ~ ic.B1
+    signal_in_1.gnd ~ power_in.gnd
+
+    signal_in_2 = new Pair
+    signal_in_2.io ~ ic.B2
+    signal_in_2.gnd ~ power_in.gnd
+
+
+module SN74LVC2T45DCUR_dev_module from SN74LVC2T45DCUR:
+    """
+    This is a development module, where the levelshifter is accessible for testing.
+    """
+    # add screw terminal to connect to other parts
+    screw_terminal = new ScrewTerminal_7P_2_54mm
+    screw_terminal._1 ~ power_in.vcc
+    screw_terminal._2 ~ power_out.vcc
+    screw_terminal._3 ~ power_in.gnd
+    screw_terminal._4 ~ signal_in_1.io
+    screw_terminal._5 ~ signal_in_2.io
+    screw_terminal._6 ~ signal_out_1.io
+    screw_terminal._7 ~ signal_out_2.io
+
+    # define the example voltage
+    power_in.voltage = 3.3V
+    power_out.voltage = 5V
+
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
