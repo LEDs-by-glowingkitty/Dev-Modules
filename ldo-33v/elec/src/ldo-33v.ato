@@ -38,10 +38,20 @@ component _AMS1117_3__3:
     assert power_out.current within 0A to 1A
 
 
-component AMS1117_3__3 from _AMS1117_3__3:
+module AMS1117_3__3 from LDO:
     """
     This is a 3.3V LDO regulator, including all required capacitors.
     """
+    power_in.voltage = 0V
+    power_out.voltage = 0V
+
+    # add LDO
+    ldo = new _AMS1117_3__3
+    ldo.power_in ~ power_in
+    ldo.power_out ~ power_out
+    ldo.power_in.voltage = power_in.voltage
+    ldo.power_out.voltage = power_out.voltage
+
     # add input capacitor
     input_cap = new Capacitor
     input_cap.value = 10uF +/- 20%
@@ -55,23 +65,18 @@ component AMS1117_3__3 from _AMS1117_3__3:
     output_cap.power ~ power_out
 
 
-module AMS1117_3__3_dev_module:
+module AMS1117_3__3_dev_module from AMS1117_3__3:
     """
     This is a development module, where the LDO is accessible for testing.
     """
-    ldo = new AMS1117_3__3
-
     # add screw terminal to connect to other parts
     screw_terminal = new ScrewTerminal_3P_2_54mm
-    screw_terminal._1 ~ ldo.power_in.vcc
-    screw_terminal._2 ~ ldo.power_out.vcc
-    screw_terminal._3 ~ ldo.power_in.gnd
+    screw_terminal._1 ~ power_in.vcc
+    screw_terminal._2 ~ power_out.vcc
+    screw_terminal._3 ~ power_in.gnd
 
-    # add power
-    power_in = new Power
+    # define the example voltage
     power_in.voltage = 5V
-    power_in ~ ldo.power_in
-    ldo.power_in.voltage = power_in.voltage
 
     # add M3 mounting holes
     mounting_hole_1 = new MountingHole_M3
