@@ -56,11 +56,15 @@ component _ESP32_WROOM_32E_N8R2:
     # add the power interface for 3.3V
     power = new Power
     power.voltage = 0V
-    power.max_output_current = 0A
+    power.available_current = 0A
 
     # connect the power interface for 3.3V
     power.vcc ~ _3V3
     power.gnd ~ GND
+
+    # define the voltage range for the power supply
+    ic_voltage_range = 3.0V to 3.6V
+    ic_max_current_draw = 0.5A
 
     # define the voltage range for the GPIO pins
     gpio_voltage_range = 0V to 3.6V
@@ -309,8 +313,8 @@ component _ESP32_WROOM_32E_N8R2:
     jtag.vcc ~ _3V3
     jtag.gnd ~ GND
 
-    assert power.voltage within 3.0V to 3.6V
-    assert power.max_output_current > 0.5A # make sure the power supply can provide at least 500mA
+    assert power.voltage within ic_voltage_range
+    assert power.available_current > ic_max_current_draw # make sure the power supply can provide at least 500mA
 
 
 
@@ -318,13 +322,13 @@ module ESP32_WROOM_32E_N8R2:
     # add power interface
     power = new Power
     power.voltage = 0V
-    power.max_output_current = 0A
+    power.available_current = 0A
 
     # add IC
     ic = new _ESP32_WROOM_32E_N8R2
     ic.power ~ power
     ic.power.voltage = power.voltage
-    ic.power.max_output_current = power.max_output_current
+    ic.power.available_current = power.available_current
 
     # add interfaces
     i2c = new I2C
@@ -395,7 +399,7 @@ module ESP32_WROOM_32E_N8R2_dev_module from ESP32_WROOM_32E_N8R2:
     """
     # define the example voltage
     power.voltage = 3.3V
-    power.max_output_current = 1A
+    power.available_current = 1A
 
     # add screw terminals to connect to other parts
     screw_terminal_left = new ScrewTerminal_10P_2_54mm
