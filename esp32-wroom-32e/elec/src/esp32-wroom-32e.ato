@@ -1,7 +1,10 @@
 from "generics/interfaces.ato" import Power, UART, I2C, SPI, I2S, JTAG, GPIO
 from "generics/capacitors.ato" import Capacitor
 from "generics/resistors.ato" import Resistor, I2CPullup
+
 from "parts/TS_1185EC_C_D_B.ato" import TS_1185EC_C_D_B
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_10P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
 
 
 component _ESP32_WROOM_32E_N8R2:
@@ -268,7 +271,6 @@ component _ESP32_WROOM_32E_N8R2:
     assert io23.voltage within gpio_voltage_range
 
 
-
     # add I2C interface
     i2c = new I2C
     i2c.sda ~ IO21
@@ -391,16 +393,49 @@ module ESP32_WROOM_32E_N8R2_dev_module from ESP32_WROOM_32E_N8R2:
     """
     This is a development module, where the ESP32 is accessible for testing.
     """
-    # add screw terminal to connect to other parts
-    # screw_terminal = new ScrewTerminal_3P_2_54mm
-    # screw_terminal._1 ~ power_in.vcc
-    # screw_terminal._2 ~ power_out.vcc
-    # screw_terminal._3 ~ power_in.gnd
-
     # define the example voltage
     power.voltage = 3.3V
     power.max_output_current = 1A
 
+    # add screw terminals to connect to other parts
+    screw_terminal_left = new ScrewTerminal_10P_2_54mm
+    screw_terminal_left._1 ~ power.gnd # pin 1
+    screw_terminal_left._2 ~ power.vcc # pin 2
+    screw_terminal_left._3 ~ ic.EN # pin 3
+    screw_terminal_left._4 ~ ic.io36.io # pin 4
+    screw_terminal_left._5 ~ ic.io39.io # pin 5
+    screw_terminal_left._6 ~ ic.io34.io # pin 6
+    screw_terminal_left._7 ~ ic.io35.io # pin 7
+    screw_terminal_left._8 ~ ic.io32.io # pin 8
+    screw_terminal_left._9 ~ ic.io33.io # pin 9
+    screw_terminal_left._10 ~ ic.io25.io # pin 10
+
+    screw_terminal_bottom = new ScrewTerminal_10P_2_54mm
+    screw_terminal_bottom._1 ~ ic.io26.io # pin 11
+    screw_terminal_bottom._2 ~ ic.io27.io # pin 12
+    screw_terminal_bottom._3 ~ ic.io14.io # pin 13
+    screw_terminal_bottom._4 ~ ic.io12.io # pin 14
+    screw_terminal_bottom._5 ~ ic.io13.io # pin 16
+    screw_terminal_bottom._6 ~ ic.io15.io # pin 23
+    screw_terminal_bottom._7 ~ ic.io2.io # pin 24
+    screw_terminal_bottom._8 ~ ic.io0.io # pin 25
+    screw_terminal_bottom._9 ~ ic.io4.io # pin 26
+    screw_terminal_bottom._10 ~ ic.io16.io # pin 27
+
+    screw_terminal_right = new ScrewTerminal_10P_2_54mm
+    screw_terminal_right._1 ~ ic.io17.io # pin 28
+    screw_terminal_right._2 ~ ic.io5.io # pin 29
+    screw_terminal_right._3 ~ ic.io18.io # pin 30
+    screw_terminal_right._4 ~ ic.io19.io # pin 31
+    screw_terminal_right._5 ~ ic.io21.io # pin 33
+    screw_terminal_right._6 ~ ic.io3.io # pin 34
+    screw_terminal_right._7 ~ ic.io1.io # pin 35
+    screw_terminal_right._8 ~ ic.io22.io # pin 36
+    screw_terminal_right._9 ~ ic.io23.io # pin 37
+    screw_terminal_right._10 ~ power.gnd # pin 38
+
     # add M3 mounting holes
-    # mounting_hole_1 = new MountingHole_M3
-    # mounting_hole_2 = new MountingHole_M3
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
+    mounting_hole_3 = new MountingHole_M3
+    mounting_hole_4 = new MountingHole_M3
