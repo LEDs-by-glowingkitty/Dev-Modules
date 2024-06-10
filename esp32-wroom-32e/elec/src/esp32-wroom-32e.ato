@@ -1,0 +1,406 @@
+from "generics/interfaces.ato" import Power, UART, I2C, SPI, I2S, JTAG, GPIO
+from "generics/capacitors.ato" import Capacitor
+from "generics/resistors.ato" import Resistor, I2CPullup
+from "parts/TS_1185EC_C_D_B.ato" import TS_1185EC_C_D_B
+
+
+component _ESP32_WROOM_32E_N8R2:
+    # component ESP32_minus_WROOM_minus_32E_minus_N8R2
+    footprint = "WIFI-SMD_ESP32-WROOM-32E"
+    datasheet = "https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32e_esp32-wroom-32ue_datasheet_en.pdf"
+    lcsc_id = "C5361945"
+    mpn = "C5361945"
+
+    # pins
+    # INFO: Many of the disconnected pins are required to be low or high on boot, or else prevent the ESP32 from booting. Therefore shouldn't be used.
+    signal GND ~ pin 1          # Ground
+    signal _3V3 ~ pin 2         # 3.3V power supply
+    signal EN ~ pin 3           # (INPUT ONLY) High: On, enables the chip. | Low: Off, the chip powers off | Note: Do not leave the pin floating.
+    signal SENSOR_VP ~ pin 4    # (INPUT ONLY) GPIO36, ADC1_CH0, RTC_GPIO0
+    signal IO36 ~ SENSOR_VP
+    signal SENSOR_VN ~ pin 5    # (INPUT ONLY) GPIO39, ADC1_CH3, RTC_GPIO3
+    signal IO39 ~ SENSOR_VN
+    signal IO34 ~ pin 6         # (INPUT ONLY) GPIO34, ADC1_CH6, RTC_GPIO4
+    signal IO35 ~ pin 7         # (INPUT ONLY) GPIO35, ADC1_CH7, RTC_GPIO5
+    signal IO32 ~ pin 8         # GPIO32, XTAL_32K_P (32.768 kHz crystal oscillator input), ADC1_CH4, TOUCH9, RTC_GPIO9
+    signal IO33 ~ pin 9         # GPIO33, XTAL_32K_N (32.768 kHz crystal oscillator output), ADC1_CH5, TOUCH8, RTC_GPIO8
+    signal IO25 ~ pin 10        # GPIO25, DAC_1, ADC2_CH8, RTC_GPIO6, EMAC_RXD0
+    signal IO26 ~ pin 11        # GPIO26, DAC_2, ADC2_CH9, RTC_GPIO7, EMAC_RXD1
+    signal IO27 ~ pin 12        # GPIO27, ADC2_CH7, TOUCH7, RTC_GPIO17, EMAC_RX_DV
+    signal IO14 ~ pin 13        # GPIO14, ADC2_CH6, TOUCH6, RTC_GPIO16, MTMS, HSPICLK, HS2_CLK, SD_CLK, EMAC_TXD2
+    signal IO12 ~ pin 14        # !!! pin must be LOW during boot !!!       GPIO12, ADC2_CH5, TOUCH5, RTC_GPIO15, MTDI, HSPIQ, HS2_DATA2, SD_DATA2, EMAC_TXD3
+    GND ~ pin 15                # Ground
+    signal IO13 ~ pin 16        # GPIO13, ADC2_CH4, TOUCH4, RTC_GPIO14, MTCK, HSPID, HS2_DATA3, SD_DATA3, EMAC_RX_ER
+    signal IO15 ~ pin 23        # !!! must be HIGH during boot, prevents startup log if pulled LOW !!!      GPIO15, ADC2_CH3, TOUCH3, MTDO, HSPICS0, RTC_GPIO13, HS2_CMD, SD_CMD, EMAC_RXD3
+    signal IO2 ~ pin 24         # !!! must be LOW during boot and also connected to the on-board LED !!!    GPIO2, ADC2_CH2, TOUCH2, RTC_GPIO12, HSPIWP, HS2_DATA0, SD_DATA0
+    signal IO0 ~ pin 25         # GPIO0, ADC2_CH1, TOUCH1, RTC_GPIO11, CLK_OUT1, EMAC_TX_CLK
+    signal IO4 ~ pin 26         # GPIO4, ADC2_CH0, TOUCH0, RTC_GPIO10, HSPIHD, HS2_DATA1, SD_DATA1, EMAC_TX_ER
+    signal IO16 ~ pin 27        # GPIO16, HS1_DATA4, U2RXD, EMAC_CLK_OUT
+    signal IO17 ~ pin 28        # GPIO17, HS1_DATA5, U2TXD, EMAC_CLK_OUT_180
+    signal IO5 ~ pin 29         # !!! pin must be HIGH during boot !!!     GPIO5, VSPICS0, HS1_DATA6, EMAC_RX_CLK
+    signal IO18 ~ pin 30        # GPIO18, VSPICLK, HS1_DATA7
+    signal IO19 ~ pin 31        # GPIO19, VSPIQ, U0CTS, EMAC_TXD0
+    signal IO21 ~ pin 33        # GPIO21, VSPIHD, EMAC_TX_EN
+    signal RXD0 ~ pin 34        # GPIO3, U0RXD, CLK_OUT2
+    signal IO3 ~ RXD0
+    signal TXD0 ~ pin 35        # GPIO1, U0TXD, CLK_OUT3, EMAC_RXD2
+    signal IO1 ~ TXD0
+    signal IO22 ~ pin 36        # GPIO22, VSPIWP, U0RTS, EMAC_TXD1
+    signal IO23 ~ pin 37        # GPIO23, VSPID, HS1_STROBE
+    GND ~ pin 38                # Ground
+    GND ~ pin 39                # Ground
+
+    # add the power interface for 3.3V
+    power = new Power
+    power.voltage = 0V
+    power.max_output_current = 0A
+
+    # connect the power interface for 3.3V
+    power.vcc ~ _3V3
+    power.gnd ~ GND
+
+    # define the voltage range for the GPIO pins
+    gpio_voltage_range = 0V to 3.6V
+
+    # add the GPIO interfaces
+    io36 = new GPIO
+    io36.io ~ IO36
+    io36.gnd ~ power.gnd
+    io36.voltage = 0V
+    io36.input_from = ""
+    assert io36.voltage within gpio_voltage_range
+
+    io39 = new GPIO
+    io39.io ~ IO39
+    io39.gnd ~ power.gnd
+    io39.voltage = 0V
+    io39.input_from = ""
+    assert io39.voltage within gpio_voltage_range
+
+    io34 = new GPIO
+    io34.io ~ IO34
+    io34.gnd ~ power.gnd
+    io34.voltage = 0V
+    io34.input_from = ""
+    assert io34.voltage within gpio_voltage_range
+
+    io35 = new GPIO
+    io35.io ~ IO35
+    io35.gnd ~ power.gnd
+    io35.voltage = 0V
+    io35.input_from = ""
+    assert io35.voltage within gpio_voltage_range
+
+    io32 = new GPIO
+    io32.io ~ IO32
+    io32.gnd ~ power.gnd
+    io32.voltage = 0V
+    io32.input_from = ""
+    io32.output_to = ""
+    assert io32.voltage within gpio_voltage_range
+
+    io33 = new GPIO
+    io33.io ~ IO33
+    io33.gnd ~ power.gnd
+    io33.voltage = 0V
+    io33.input_from = ""
+    io33.output_to = ""
+    assert io33.voltage within gpio_voltage_range
+
+    io25 = new GPIO
+    io25.io ~ IO25
+    io25.gnd ~ power.gnd
+    io25.voltage = 0V
+    io25.input_from = ""
+    io25.output_to = ""
+    assert io25.voltage within gpio_voltage_range
+
+    io26 = new GPIO
+    io26.io ~ IO26
+    io26.gnd ~ power.gnd
+    io26.voltage = 0V
+    io26.input_from = ""
+    io26.output_to = ""
+    assert io26.voltage within gpio_voltage_range
+
+    io27 = new GPIO
+    io27.io ~ IO27
+    io27.gnd ~ power.gnd
+    io27.voltage = 0V
+    io27.input_from = ""
+    io27.output_to = ""
+    assert io27.voltage within gpio_voltage_range
+
+    io14 = new GPIO
+    io14.io ~ IO14
+    io14.gnd ~ power.gnd
+    io14.voltage = 0V
+    io14.input_from = ""
+    io14.output_to = ""
+    assert io14.voltage within gpio_voltage_range
+
+    io12 = new GPIO
+    io12.io ~ IO12
+    io12.gnd ~ power.gnd
+    io12.voltage = 0V
+    io12.input_from = ""
+    io12.output_to = ""
+    assert io12.voltage within gpio_voltage_range
+
+    io13 = new GPIO
+    io13.io ~ IO13
+    io13.gnd ~ power.gnd
+    io13.voltage = 0V
+    io13.input_from = ""
+    io13.output_to = ""
+    assert io13.voltage within gpio_voltage_range
+
+    io15 = new GPIO
+    io15.io ~ IO15
+    io15.gnd ~ power.gnd
+    io15.voltage = 0V
+    io15.input_from = ""
+    io15.output_to = ""
+    assert io15.voltage within gpio_voltage_range
+
+    io2 = new GPIO
+    io2.io ~ IO2
+    io2.gnd ~ power.gnd
+    io2.voltage = 0V
+    io2.input_from = ""
+    io2.output_to = ""
+    assert io2.voltage within gpio_voltage_range
+
+    io0 = new GPIO
+    io0.io ~ IO0
+    io0.gnd ~ power.gnd
+    io0.voltage = 0V
+    io0.input_from = ""
+    io0.output_to = ""
+    assert io0.voltage within gpio_voltage_range
+
+    io4 = new GPIO
+    io4.io ~ IO4
+    io4.gnd ~ power.gnd
+    io4.voltage = 0V
+    io4.input_from = ""
+    io4.output_to = ""
+    assert io4.voltage within gpio_voltage_range
+
+    io16 = new GPIO
+    io16.io ~ IO16
+    io16.gnd ~ power.gnd
+    io16.voltage = 0V
+    io16.input_from = ""
+    io16.output_to = ""
+    assert io16.voltage within gpio_voltage_range
+
+    io17 = new GPIO
+    io17.io ~ IO17
+    io17.gnd ~ power.gnd
+    io17.voltage = 0V
+    io17.input_from = ""
+    io17.output_to = ""
+    assert io17.voltage within gpio_voltage_range
+
+    io5 = new GPIO
+    io5.io ~ IO5
+    io5.gnd ~ power.gnd
+    io5.voltage = 0V
+    io5.input_from = ""
+    io5.output_to = ""
+    assert io5.voltage within gpio_voltage_range
+
+    io18 = new GPIO
+    io18.io ~ IO18
+    io18.gnd ~ power.gnd
+    io18.voltage = 0V
+    io18.input_from = ""
+    io18.output_to = ""
+    assert io18.voltage within gpio_voltage_range
+
+    io19 = new GPIO
+    io19.io ~ IO19
+    io19.gnd ~ power.gnd
+    io19.voltage = 0V
+    io19.input_from = ""
+    io19.output_to = ""
+    assert io19.voltage within gpio_voltage_range
+
+    io21 = new GPIO
+    io21.io ~ IO21
+    io21.gnd ~ power.gnd
+    io21.voltage = 0V
+    io21.input_from = ""
+    io21.output_to = ""
+    assert io21.voltage within gpio_voltage_range
+
+    io3 = new GPIO
+    io3.io ~ IO3
+    io3.gnd ~ power.gnd
+    io3.voltage = 0V
+    io3.input_from = ""
+    io3.output_to = ""
+    assert io3.voltage within gpio_voltage_range
+
+    io1 = new GPIO
+    io1.io ~ IO1
+    io1.gnd ~ power.gnd
+    io1.voltage = 0V
+    io1.input_from = ""
+    io1.output_to = ""
+    assert io1.voltage within gpio_voltage_range
+
+    io22 = new GPIO
+    io22.io ~ IO22
+    io22.gnd ~ power.gnd
+    io22.voltage = 0V
+    io22.input_from = ""
+    io22.output_to = ""
+    assert io22.voltage within gpio_voltage_range
+
+    io23 = new GPIO
+    io23.io ~ IO23
+    io23.gnd ~ power.gnd
+    io23.voltage = 0V
+    io23.input_from = ""
+    io23.output_to = ""
+    assert io23.voltage within gpio_voltage_range
+
+
+
+    # add I2C interface
+    i2c = new I2C
+    i2c.sda ~ IO21
+    i2c.scl ~ IO22
+    i2c.gnd ~ GND
+
+    # add I2S interface
+    i2s = new I2S
+    i2s.ws ~ IO23
+    i2s.sck ~ IO25
+    i2s.sd ~ IO26
+    i2s.gnd ~ GND
+
+    # add SPI interface
+    # (DMX can also be connected via SPI, for example via the SparkFun DMX shield for ESP32)
+    spi = new SPI
+    spi.miso ~ IO13
+    spi.mosi ~ IO14
+    spi.sck ~ IO4
+    spi.cs ~ IO15
+    spi.gnd ~ GND
+
+    # add UART
+    uart = new UART
+    uart.tx ~ TXD0
+    uart.rx ~ RXD0
+    uart.gnd ~ GND
+
+    # add JTAG interface
+    jtag = new JTAG
+    jtag.tck ~ IO13
+    jtag.tms ~ IO14
+    jtag.tdi ~ IO12
+    jtag.tdo ~ IO15
+    jtag.reset ~ EN
+    jtag.vcc ~ _3V3
+    jtag.gnd ~ GND
+
+    assert power.voltage within 3.0V to 3.6V
+    assert power.max_output_current > 0.5A # make sure the power supply can provide at least 500mA
+
+
+
+module ESP32_WROOM_32E_N8R2:
+    # add power interface
+    power = new Power
+    power.voltage = 0V
+    power.max_output_current = 0A
+
+    # add IC
+    ic = new _ESP32_WROOM_32E_N8R2
+    ic.power ~ power
+    ic.power.voltage = power.voltage
+    ic.power.max_output_current = power.max_output_current
+
+    # add interfaces
+    i2c = new I2C
+    i2c ~ ic.i2c
+    i2s = new I2S
+    i2s ~ ic.i2s
+    spi = new SPI
+    spi ~ ic.spi
+    uart = new UART
+    uart ~ ic.uart
+    jtag = new JTAG
+    jtag ~ ic.jtag
+
+    # Add capacitor for 3.3V input of ESP32
+    power_cap = new Capacitor
+    power_cap.value = 10uF +/- 20%
+    power_cap.package = "0603"
+    power_cap.power ~ power
+
+    # Add pull up resistors for the I2C interface
+    i2c_pullup = new I2CPullup
+    i2c_pullup.r_sda.value = 2kohm +/- 1%
+    i2c_pullup.r_scl.value = 2kohm +/- 1%
+    i2c_pullup.power ~ power
+    i2c_pullup.i2c ~ i2c
+
+    ########################################
+    ## reset/EN button
+    ########################################
+    # Add the reset/EN button
+    en_button = new TS_1185EC_C_D_B
+    en_button.input ~ ic.EN
+    en_button.output ~ power.gnd
+
+    # Add a delay capacitor for the reset/EN pin
+    en_delay_cap = new Capacitor
+    en_delay_cap.value = 1uF +/- 10%
+    en_delay_cap.package = "0603"
+    en_delay_cap.p1 ~ ic.EN
+    en_delay_cap.p2 ~ power.gnd
+
+    # Add a pull up resistor for the reset/EN pin
+    en_pullup_resistor = new Resistor
+    en_pullup_resistor.value = 5.1kohm +/- 1%
+    en_pullup_resistor.package = "0402"
+    en_pullup_resistor.p1 ~ ic.EN
+    en_pullup_resistor.p2 ~ power.vcc
+
+    ########################################
+    ## boot button
+    ########################################
+    # Add the boot button
+    boot_button = new TS_1185EC_C_D_B
+    boot_button.input ~ ic.IO0
+    boot_button.output ~ power.gnd
+
+    # Add a pull up resistor for the boot button
+    boot_pullup_resistor = new Resistor
+    boot_pullup_resistor.value = 100kohm +/- 1%
+    boot_pullup_resistor.package = "0402"
+    boot_pullup_resistor.p1 ~ ic.IO0
+    boot_pullup_resistor.p2 ~ power.vcc
+
+
+module ESP32_WROOM_32E_N8R2_dev_module from ESP32_WROOM_32E_N8R2:
+    """
+    This is a development module, where the ESP32 is accessible for testing.
+    """
+    # add screw terminal to connect to other parts
+    # screw_terminal = new ScrewTerminal_3P_2_54mm
+    # screw_terminal._1 ~ power_in.vcc
+    # screw_terminal._2 ~ power_out.vcc
+    # screw_terminal._3 ~ power_in.gnd
+
+    # define the example voltage
+    power.voltage = 3.3V
+    power.max_output_current = 1A
+
+    # add M3 mounting holes
+    # mounting_hole_1 = new MountingHole_M3
+    # mounting_hole_2 = new MountingHole_M3

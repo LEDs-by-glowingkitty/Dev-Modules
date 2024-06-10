@@ -1,0 +1,9 @@
+ato-version: ^0.2.0
+builds:
+  default:
+    entry: elec/src/esp32-wroom-32e.ato:ESP32_WROOM_32E_N8R2_dev_module
+dependencies:
+- name: generics
+  version_spec: '@09ad6baeaab93d53b9b6c90069ac750f4161d76f'
+  link_broken: true
+  path: elec/src/generics
