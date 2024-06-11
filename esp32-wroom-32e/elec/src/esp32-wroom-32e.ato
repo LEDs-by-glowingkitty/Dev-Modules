@@ -63,8 +63,8 @@ component _ESP32_WROOM_32E_N8R2:
     power.gnd ~ GND
 
     # define the voltage range for the power supply
-    ic_voltage_range = 3.0V to 3.6V
-    ic_max_current_draw = 0.5A
+    voltage_range = 3.0V to 3.6V
+    max_current_draw = 0.5A
 
     # define the voltage range for the GPIO pins
     gpio_voltage_range = 0V to 3.6V
@@ -313,8 +313,8 @@ component _ESP32_WROOM_32E_N8R2:
     jtag.vcc ~ _3V3
     jtag.gnd ~ GND
 
-    assert power.voltage within ic_voltage_range
-    assert power.available_current > ic_max_current_draw # make sure the power supply can provide at least 500mA
+    assert power.voltage within voltage_range
+    assert power.available_current > max_current_draw # make sure the power supply can provide at least 500mA
 
 
 
