@@ -3,7 +3,7 @@ from "generics/interfaces.ato" import Power
 
 from "parts/NCE30P12S.ato" import NCE30P12S
 from "parts/AO3400A.ato" import AO3400A
-from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_10P_2_54mm
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_8P_2_54mm
 from "parts/mounting_holes.ato" import MountingHole_M3
 
 
@@ -50,6 +50,10 @@ module Mosfet_Power_Switch_3_5a:
 
     # connect the control input to the gate of the N channel mosfet
     control ~ power_n_mosfet.gate
+
+    # add an extension signal, which is used to chain multiple dev modules, where one n-channel mosfet
+    # can control multiple p-channel mosfets
+    signal extension_pin ~ power_n_mosfet.drain
 
     # add the power details
     power_n_mosfet.gate.voltage = control.voltage
@@ -155,17 +159,15 @@ module Mosfet_Power_Switch_3_5a_dev_module:
     mosfet_power_switch.control.voltage = 3.3V # the voltage of the GPIO pin which is used to control the mosfet
 
     # add screw terminal to connect to other parts
-    screw_terminal = new ScrewTerminal_10P_2_54mm
+    screw_terminal = new ScrewTerminal_8P_2_54mm
     screw_terminal._1 ~ mosfet_power_switch.control
-    screw_terminal._2 ~ mosfet_power_switch.power_n_mosfet.drain # so we can connect other p-channel power mosfets
-    screw_terminal._3 ~ mosfet_power_switch.power_p_mosfet.gate # so this dev module can be controlled by another dev module / n mosfet
+    screw_terminal._2 ~ mosfet_power_switch.extension_pin
+    screw_terminal._3 ~ mosfet_power_switch.power_in.vcc
     screw_terminal._4 ~ mosfet_power_switch.power_in.vcc
-    screw_terminal._5 ~ mosfet_power_switch.power_in.vcc
+    screw_terminal._5 ~ mosfet_power_switch.power_in.gnd
     screw_terminal._6 ~ mosfet_power_switch.power_in.gnd
-    screw_terminal._7 ~ mosfet_power_switch.power_in.gnd
-    screw_terminal._8 ~ mosfet_power_switch.power_in.gnd
-    screw_terminal._9 ~ mosfet_power_switch.power_out.vcc
-    screw_terminal._10 ~ mosfet_power_switch.power_out.vcc
+    screw_terminal._7 ~ mosfet_power_switch.power_out.vcc
+    screw_terminal._8 ~ mosfet_power_switch.power_out.vcc
 
     # add M3 mounting holes
     mounting_hole_1 = new MountingHole_M3
