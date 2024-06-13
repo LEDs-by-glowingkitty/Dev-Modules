@@ -1,7 +1,7 @@
 ato-version: ^0.2.0
 builds:
   default:
-    entry: elec/src/mosfet-power-switch-3-5a.ato:MosfetPowerSwitch35a
+    entry: elec/src/mosfet-power-switch-3-5a.ato:Mosfet_Power_Switch_3_5a_dev_module
 dependencies:
 - name: generics
   version_spec: '@09ad6baeaab93d53b9b6c90069ac750f4161d76f'
