@@ -3,6 +3,8 @@ from "generics/interfaces.ato" import Power
 
 from "parts/NCE30P12S.ato" import NCE30P12S
 from "parts/AO3400A.ato" import AO3400A
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_10P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
 
 
 module Mosfet_Power_Switch_3_5a:
@@ -143,7 +145,28 @@ module Mosfet_Power_Switch_4x_3_5a from Mosfet_Power_Switch_3_5a:
     power_p_mosfet_4.current_flowing_through = power_in_4.current
 
 
-module Mosfet_Power_Switch_3_5a_dev_module from Mosfet_Power_Switch_3_5a:
-    power_in.voltage = 5V
-    power_in.current = 3.5A
-    control.voltage = 3.3V
+module Mosfet_Power_Switch_3_5a_dev_module:
+    # add the mosfet power switch
+    mosfet_power_switch = new Mosfet_Power_Switch_3_5a
+
+    # add example power details
+    mosfet_power_switch.power_in.voltage = 5V # the voltage for the load
+    mosfet_power_switch.power_in.current = 3.5A # the current the load consumes
+    mosfet_power_switch.control.voltage = 3.3V # the voltage of the GPIO pin which is used to control the mosfet
+
+    # add screw terminal to connect to other parts
+    screw_terminal = new ScrewTerminal_10P_2_54mm
+    screw_terminal._1 ~ mosfet_power_switch.control
+    screw_terminal._2 ~ mosfet_power_switch.power_n_mosfet.drain # so we can connect other p-channel power mosfets
+    screw_terminal._3 ~ mosfet_power_switch.power_p_mosfet.gate # so this dev module can be controlled by another dev module / n mosfet
+    screw_terminal._4 ~ mosfet_power_switch.power_in.vcc
+    screw_terminal._5 ~ mosfet_power_switch.power_in.vcc
+    screw_terminal._6 ~ mosfet_power_switch.power_in.gnd
+    screw_terminal._7 ~ mosfet_power_switch.power_in.gnd
+    screw_terminal._8 ~ mosfet_power_switch.power_in.gnd
+    screw_terminal._9 ~ mosfet_power_switch.power_out.vcc
+    screw_terminal._10 ~ mosfet_power_switch.power_out.vcc
+
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
