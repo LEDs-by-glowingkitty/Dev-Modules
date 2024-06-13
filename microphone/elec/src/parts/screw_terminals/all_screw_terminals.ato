@@ -1,0 +1,7 @@
+from "parts/screw_terminals/XY308_2_54_5P.ato" import XY308_2_54_5P
+
+
+module ScrewTerminal_5P_2_54mm from XY308_2_54_5P:
+    """
+    This is a 5-pin screw terminal block with 2.54mm pitch.
+    """

@@ -1,2 +1,82 @@
-module Microphone:
-    signal gnd
+from "generics/capacitors.ato" import Capacitor
+from "generics/interfaces.ato" import Power, I2S
+
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_5P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
+
+
+component _MSM261D4030H1CPM:
+    """
+    This is a digital MEMS microphone with I2S interface. It can be directly connected to a microcontroller via I2S.
+    """
+    # component MSM261D4030H1CPM
+    footprint = "MIC-SMD_8P-L4.0-W3.0_ZTS6231"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2012111637_MEMS-MSM261D4030H1CPM_C966942.pdf"
+    lcsc_id = "C966942"
+    mpn = "C966942"
+
+    # pins
+    signal VDD ~ pin 1
+    signal L_R ~ pin 2
+    signal CLK ~ pin 3
+    signal DATA ~ pin 4
+    signal GND ~ pin 5
+    GND ~ pin 6
+    GND ~ pin 7
+    GND ~ pin 8
+
+    # add I2S interface
+    i2s = new I2S
+    i2s.ws ~ L_R
+    i2s.sck ~ CLK
+    i2s.sd ~ DATA
+    i2s.gnd ~ GND
+    # TODO why does switching WS and CK pin fixes the not working microphone?
+
+    # add power
+    power = new Power
+    power.voltage = 0V
+    power.available_current = 0A
+
+    # Connect the power
+    power.vcc ~ VDD
+    power.gnd ~ GND
+
+    # define the voltage range for the power supply
+    voltage_range = 1.6V to 3.6V
+    typ_current_draw_standard_mode = 670uA # TEST CONDITIONS: fCLOCK = 2.4 MHz, VDD=1.8 V
+
+    assert power.voltage within voltage_range
+    assert power.available_current > typ_current_draw_standard_mode
+
+
+module MSM261D4030H1CPM from _MSM261D4030H1CPM:
+    # add caps
+    cap1 = new Capacitor
+    cap1.value = 10uF +/- 20%
+    cap1.package = "0603"
+    cap1.power ~ power
+
+    cap2 = new Capacitor
+    cap2.value = 0.1uF +/- 10%
+    cap2.package = "0402"
+    cap2.power ~ power
+
+
+module microphone_dev_module:
+    mic = new MSM261D4030H1CPM
+
+    # define example power specs
+    mic.power.voltage = 3.3V
+    mic.power.available_current = 1A
+
+    screw_terminal = new ScrewTerminal_5P_2_54mm
+    screw_terminal._1 ~ mic.power.vcc
+    screw_terminal._2 ~ mic.power.gnd
+    screw_terminal._3 ~ mic.L_R
+    screw_terminal._4 ~ mic.CLK
+    screw_terminal._5 ~ mic.DATA
+
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
