@@ -5,15 +5,14 @@ from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_5P_2_5
 from "parts/mounting_holes.ato" import MountingHole_M3
 
 
-component _MSM261D4030H1CPM:
+component _MP34DT05TR_A:
     """
-    This is a digital MEMS microphone with I2S interface. It can be directly connected to a microcontroller via I2S.
+    This is a digital memms microphone from STMicroelectronics.
     """
-    # component MSM261D4030H1CPM
-    footprint = "MIC-SMD_8P-L4.0-W3.0_ZTS6231"
-    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2012111637_MEMS-MSM261D4030H1CPM_C966942.pdf"
-    lcsc_id = "C966942"
-    mpn = "C966942"
+    footprint = "MIC-SMD_5P-L3.0-W4.0-P0.85-BL"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2106070037_STMicroelectronics-MP34DT05TR-A_C2688664.pdf"
+    lcsc_id = "C2688664"
+    mpn = "C2688664"
 
     # pins
     signal VDD ~ pin 1
@@ -21,9 +20,6 @@ component _MSM261D4030H1CPM:
     signal CLK ~ pin 3
     signal DATA ~ pin 4
     signal GND ~ pin 5
-    GND ~ pin 6
-    GND ~ pin 7
-    GND ~ pin 8
 
     # add I2S interface
     i2s = new I2S
@@ -31,7 +27,6 @@ component _MSM261D4030H1CPM:
     i2s.sck ~ CLK
     i2s.sd ~ DATA
     i2s.gnd ~ GND
-    # TODO why does switching WS and CK pin fixes the not working microphone?
 
     # add power
     power = new Power
@@ -44,13 +39,13 @@ component _MSM261D4030H1CPM:
 
     # define the voltage range for the power supply
     voltage_range = 1.6V to 3.6V
-    typ_current_draw_standard_mode = 670uA # TEST CONDITIONS: fCLOCK = 2.4 MHz, VDD=1.8 V
+    typ_current_draw_standard_mode = 650uA # TEST CONDITIONS: fCLOCK = 2.4 MHz, VDD=1.8 V
 
     assert power.voltage within voltage_range
     assert power.available_current > typ_current_draw_standard_mode
 
 
-module MSM261D4030H1CPM from _MSM261D4030H1CPM:
+module MP34DT05TR_A from _MP34DT05TR_A:
     # add caps
     cap1 = new Capacitor
     cap1.value = 10uF +/- 20%
@@ -64,7 +59,7 @@ module MSM261D4030H1CPM from _MSM261D4030H1CPM:
 
 
 module microphone_dev_module:
-    mic = new MSM261D4030H1CPM
+    mic = new MP34DT05TR_A
 
     # define example power specs
     mic.power.voltage = 3.3V
