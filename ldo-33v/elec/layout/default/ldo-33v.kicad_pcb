@@ -944,7 +944,7 @@
 			(at 0 -4 180)
 			(layer "F.SilkS")
 			(hide yes)
-			(uuid "e4148ac2-72d5-4391-9c2f-57c65e28d2ea")
+			(uuid "a3549f0b-9242-4ba3-a11d-6aae4cd2ed07")
 			(effects
 				(font
 					(size 1 1)
@@ -955,7 +955,7 @@
 		(property "Value" ""
 			(at 0 4 180)
 			(layer "F.Fab")
-			(uuid "eae98fb5-4b46-4939-ac3c-a2b403bdd235")
+			(uuid "8ce19df4-e9f3-44eb-a58b-f30c72041f9f")
 			(effects
 				(font
 					(size 1 1)
@@ -968,7 +968,7 @@
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "0afaf3e0-bba7-49f7-aff1-ff3fc9ef1239")
+			(uuid "f9a83941-ac06-4e47-99f0-45c7cbb499ae")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -980,7 +980,7 @@
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "20e78a0d-ba10-48e9-ad77-04139ace9cb8")
+			(uuid "0ed2850b-0623-4af2-8612-0e03c710c578")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -992,7 +992,7 @@
 			(unlocked yes)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "dcf89231-4c42-4f0f-9bde-5d848c2c1b0e")
+			(uuid "e1c26c25-e887-46df-9ff5-db8869426d73")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1001,114 +1001,10 @@
 		)
 		(path "/1336d724-3716-8c92-fb63-8821f30780ae/1336d724-3716-8c92-fb63-8821f30780ae")
 		(attr through_hole)
-		(fp_line
-			(start 4.05 -3.4)
-			(end 4.05 3.1)
-			(stroke
-				(width 0.25)
-				(type solid)
-			)
-			(layer "F.SilkS")
-			(uuid "7e931119-784e-4421-8d82-5b77270c937f")
-		)
-		(fp_line
-			(start -4.05 3.1)
-			(end 4.05 3.1)
-			(stroke
-				(width 0.25)
-				(type solid)
-			)
-			(layer "F.SilkS")
-			(uuid "b5f61930-1204-47ec-8e63-dcab699aff14")
-		)
-		(fp_line
-			(start -4.05 -1.33)
-			(end 4.05 -1.33)
-			(stroke
-				(width 0.25)
-				(type solid)
-			)
-			(layer "F.SilkS")
-			(uuid "75065f91-f54c-4236-be56-98d914e63932")
-		)
-		(fp_line
-			(start -4.05 -2.52)
-			(end 4.05 -2.52)
-			(stroke
-				(width 0.25)
-				(type solid)
-			)
-			(layer "F.SilkS")
-			(uuid "9e2a5ba2-ca9b-485e-8ff0-22b6af26d67d")
-		)
-		(fp_line
-			(start -4.05 -3.4)
-			(end 4.05 -3.4)
-			(stroke
-				(width 0.25)
-				(type solid)
-			)
-			(layer "F.SilkS")
-			(uuid "a43373d8-c785-455b-93dd-100d8c50de08")
-		)
-		(fp_line
-			(start -4.05 -3.4)
-			(end -4.05 3.1)
-			(stroke
-				(width 0.25)
-				(type solid)
-			)
-			(layer "F.SilkS")
-			(uuid "486b9e06-9d3f-4f5c-9aaa-445270c5f32e")
-		)
-		(fp_circle
-			(center 2.54 0)
-			(end 2.82 0)
-			(stroke
-				(width 0.55)
-				(type solid)
-			)
-			(fill none)
-			(layer "F.Fab")
-			(uuid "bd97af2e-fd55-48f6-905d-03543699aa5f")
-		)
-		(fp_circle
-			(center 0 0)
-			(end 0.28 0)
-			(stroke
-				(width 0.55)
-				(type solid)
-			)
-			(fill none)
-			(layer "F.Fab")
-			(uuid "0b74e8d7-9399-43a1-a604-4dbc5f193267")
-		)
-		(fp_circle
-			(center -2.54 0)
-			(end -2.26 0)
-			(stroke
-				(width 0.55)
-				(type solid)
-			)
-			(fill none)
-			(layer "F.Fab")
-			(uuid "4a89e9ab-125f-4933-9207-2003cae40c3e")
-		)
-		(fp_circle
-			(center -4.18 3.23)
-			(end -4.15 3.23)
-			(stroke
-				(width 0.06)
-				(type solid)
-			)
-			(fill none)
-			(layer "F.Fab")
-			(uuid "bafac83b-c77b-41f8-a982-daf9a44cebbd")
-		)
 		(fp_text user "${REFERENCE}"
 			(at 0 0 180)
 			(layer "F.Fab")
-			(uuid "99928688-9e6d-4fd0-b5c5-c299b38ca3ca")
+			(uuid "88217b28-5065-4b9a-b5e0-7a2e5c976a3e")
 			(effects
 				(font
 					(size 1 1)
@@ -1124,7 +1020,7 @@
 			(remove_unused_layers no)
 			(net 2 "vcc")
 			(pintype "stereo")
-			(uuid "3ed70c09-951d-4f62-8953-2a50b66eeb2c")
+			(uuid "b8dfdfaa-cb3e-4564-b8b6-9bb36f58c544")
 		)
 		(pad "2" thru_hole circle
 			(at 0 0 180)
@@ -1134,7 +1030,7 @@
 			(remove_unused_layers no)
 			(net 1 "vout")
 			(pintype "stereo")
-			(uuid "b2e635da-46ef-468d-856d-89d971db0723")
+			(uuid "3e5b7dd9-fac5-4bae-a277-aeb7278d0111")
 		)
 		(pad "3" thru_hole circle
 			(at 2.54 0 180)
@@ -1144,7 +1040,7 @@
 			(remove_unused_layers no)
 			(net 3 "gnd")
 			(pintype "stereo")
-			(uuid "926c0bce-73a9-4fbf-819e-c43073667583")
+			(uuid "ff27b209-64a6-4629-a128-127b48722b0e")
 		)
 		(model "/Users/kitty/Library/CloudStorage/Dropbox/Products/Dev-Modules/ldo-33v/build/footprints/footprints.3dshapes/CONN-TH_XY308-2.54-3P.step"
 			(offset
