@@ -1,2 +1,137 @@
-module UsbToSerial:
-    signal gnd
+from "generics/resistors.ato" import Resistor
+from "generics/capacitors.ato" import Capacitor
+from "generics/interfaces.ato" import USB2, Power, UART
+
+from "parts/SP0503BAHTG.ato" import SP0503BAHTG
+from "parts/UMH3N.ato" import UMH3N
+
+
+component _CP2102N_A02_GQFN24R:
+    """
+    This is the CP2102N USB to serial IC from Silicon Labs.
+    In comparison to the CP2102, the CP2102N has an increased maximum data rate of 3Mbps (vs 2Mbps) and a few additional features.
+    Datasheet: https://www.silabs.com/documents/public/data-sheets/cp2102n-datasheet.pdf
+
+    Included are also the required capacitors, resistors, ESD protection for the D+ and D- lines, and an auto-reset dual transistor.
+    """
+
+    # component CP2102N-A02-GQFN24R
+    footprint = "QFN-24_L4.0-W4.0-P0.50-TL-EP2.6"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2304140030_SKYWORKS-SILICON-LABS-CP2102N-A02-GQFN24R_C969151.pdf"
+    lcsc_id = "C969151"
+    mpn = "C969151"
+
+    # pins
+    signal RI_CLK ~ pin 1           # Ring Indicator/Clock Input
+    signal GND ~ pin 2              # Ground
+    signal DPLUS ~ pin 3            # Data+ Line
+    signal DMINUS ~ pin 4           # Data- Line
+    signal VIO ~ pin 5              # Voltage Input/Output
+    signal VDD ~ pin 6              # Power Supply
+    signal VREGIN ~ pin 7           # Voltage Regulator Input
+    signal VBUS ~ pin 8             # USB Bus Voltage
+    signal RSTb ~ pin 9             # Reset. The RSTb pin will be driven low during power-on and power failure reset events
+    signal GPIO_3_WAKEUP ~ pin 11   # General Purpose Input/Output 3 / Wakeup
+    signal GPIO_2_RS485 ~ pin 12    # General Purpose Input/Output 2 / RS485
+    signal GPIO_1_RXT ~ pin 13      # General Purpose Input/Output 1 / Receive Transmit
+    signal GPIO_0_TXT ~ pin 14      # General Purpose Input/Output 0 / Transmit
+    signal SUSPENDb ~ pin 15        # Suspend
+    signal SUSPEND ~ pin 17         # Suspend
+    signal CTS ~ pin 18             # Clear To Send
+    signal RTS ~ pin 19             # Request To Send
+    signal request_to_send ~ RTS
+    signal RXD ~ pin 20             # Receive Data
+    signal TXD ~ pin 21             # Transmit Data
+    signal DSR ~ pin 22             # Data Set Ready
+    signal data_set_ready ~ DSR
+    signal DTR ~ pin 23             # Data Terminal Ready
+    signal data_terminal_ready ~ DTR
+    signal DCD ~ pin 24             # Data Carrier Detect
+    signal data_carrier_detect ~ DCD
+    GND ~ pin 25                    # Ground
+
+    # Add USB2
+    usb = new USB2
+    usb.dp ~ DPLUS
+    usb.dm ~ DMINUS
+    usb.gnd ~ GND
+
+    # Add UART
+    uart = new UART
+    uart.tx ~ TXD
+    uart.rx ~ RXD
+    uart.gnd ~ GND
+
+    # Add power (3.3V)
+    power = new Power
+    power.vcc ~ VBUS
+    power.vcc ~ VREGIN
+    power.vcc ~ VDD
+    power.vcc ~ VIO
+    power.gnd ~ GND
+
+    # Add specs
+    DPLUS.voltage = 0V to 3.3V
+    DMINUS.voltage = 0V to 3.3V
+    CTS.voltage = 0V to 3.3V
+    RTS.voltage = 0V to 3.3V
+    request_to_send.voltage = RTS.voltage
+    RXD.voltage = 0V to 3.3V
+    TXD.voltage = 0V to 3.3V
+    DSR.voltage = 0V to 3.3V
+    DTR.voltage = 0V to 3.3V
+    data_terminal_ready.voltage = DTR.voltage
+    DCD.voltage = 0V to 3.3V
+
+
+module CP2102N from _CP2102N_A02_GQFN24R:
+    # Add capacitors for the VREGIN and VDD pins
+    small_cap = new Capacitor
+    small_cap.value = 0.1uF +/- 10%
+    small_cap.package = "0402"
+    small_cap.power ~ power
+
+    large_cap = new Capacitor
+    large_cap.value = 10uF +/- 20%
+    large_cap.package = "0603"
+    large_cap.power ~ power
+
+    # Add a pull up resistor for the RSTb pin.
+    pull_up_resistor = new Resistor
+    pull_up_resistor.value = 1kohm +/- 1%
+    pull_up_resistor.package = "0402"
+    pull_up_resistor.p1 ~ RSTb
+    pull_up_resistor.p2 ~ power.vcc
+
+    # Add ESD protection for the D+ and D- lines
+    # (ESD protection for VBUS not included to make it make it easier compatible with USB PD systems where ESD protection is done via the USB PD controller)
+    esd_protection_diode = new SP0503BAHTG
+    esd_protection_diode.gnd ~ power.gnd
+    esd_protection_diode.input2 ~ DPLUS
+    esd_protection_diode.input3 ~ DMINUS
+
+    esd_protection_diode.input2.voltage = DPLUS.voltage
+    esd_protection_diode.input3.voltage = DMINUS.voltage
+
+    # Add auto-reset dual transistor
+    auto_reset_transistor = new UMH3N
+    auto_reset_transistor.emitter_1 ~ request_to_send
+    auto_reset_transistor.base_1 ~ data_terminal_ready
+    auto_reset_transistor.emitter_2 ~ data_terminal_ready
+    auto_reset_transistor.base_2 ~ request_to_send
+
+    auto_reset_transistor.emitter_1.voltage = request_to_send.voltage
+    auto_reset_transistor.base_1.voltage = data_terminal_ready.voltage
+    auto_reset_transistor.emitter_2.voltage = data_terminal_ready.voltage
+    auto_reset_transistor.base_2.voltage = request_to_send.voltage
+
+    # Auto program:
+    # DTR   RTS -->	EN 	IO0
+    # 1	    1		1	1
+    # 0	    0		1	1
+    # 1	    0		0	1
+    # 0	    1		1	0
+
+
+module CP2102N_dev_module:
+    usb_to_serial_ic = new CP2102N

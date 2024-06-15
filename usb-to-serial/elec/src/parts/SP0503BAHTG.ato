@@ -1,0 +1,41 @@
+component SP0503BAHTG:
+    """
+    This is an TVS / ESD protection diode. It is used to protect sensitive components from ESD damage.
+    ESD stands for Electro-Static Discharge. It is a sudden flow of electricity between two electrically charged objects caused by contact, an electrical short, or dielectric breakdown.
+    More specifically: it is an Uni-directional 3-Line TVS Array
+    """
+
+    # component SP0503BAHTG
+    footprint = "SOT-143-4_L2.9-W1.3-P1.92-LS2.4-BL"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2206241815_TECH-PUBLIC-SP0503BAHTG_C3040626.pdf"
+    lcsc_id = "C3040626"
+    mpn = "C3040626"
+
+    # pins
+    signal gnd ~ pin 1
+    signal input1 ~ pin 2
+    signal input2 ~ pin 3
+    signal input3 ~ pin 4
+
+    input1.voltage = 0V
+    input2.voltage = 0V
+    input3.voltage = 0V
+
+    # add specs
+    reverse_working_voltage_max = 5.5V
+    breakdown_voltage_min = 6V
+    reverse_leakage_current_max = 0.8uA
+    clamping_voltage_max = 11V # @ 1A
+    peak_pulse_power = 150W
+    peak_pulse_current = 10A
+
+    vrwm = reverse_working_voltage_max
+    vbr = breakdown_voltage_min
+    ir = reverse_leakage_current_max
+    vc = clamping_voltage_max
+    ppk = peak_pulse_power
+    ipp = peak_pulse_current
+
+    assert input1.voltage <= reverse_working_voltage_max
+    assert input2.voltage <= reverse_working_voltage_max
+    assert input3.voltage <= reverse_working_voltage_max

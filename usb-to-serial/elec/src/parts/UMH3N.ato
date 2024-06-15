@@ -1,0 +1,39 @@
+component UMH3N:
+    """
+    This is the UMH3N. It's a Dual Digital Transistor that is used for example as an auto reset circuit for a microcontroller like the ESP32, when connected to a USB to serial converter.
+    """
+
+    # component UMH3N
+    footprint = "SC-70-6_L2.2-W1.3-P0.65-LS2.1-BR"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/1809211024_Jiangsu-Changjing-Electronics-Technology-Co---Ltd--UMH3N_C62892.pdf"
+    lcsc_id = "C62892"
+    mpn = "C62892"
+
+    # pins
+    signal base_1 ~ pin 2
+    signal base_2 ~ pin 5
+    signal emitter_1 ~ pin 1
+    signal emitter_2 ~ pin 4
+    signal collector_1 ~ pin 6
+    signal collector_2 ~ pin 3
+
+    base_1.voltage = 0V
+    base_2.voltage = 0V
+    emitter_1.voltage = 0V
+    emitter_2.voltage = 0V
+    collector_1.voltage = 0V
+    collector_2.voltage = 0V
+
+    # add specs
+    collector_base_voltage = 50V
+    collector_emitter_voltage = 50V
+    emitter_base_voltage = 5V
+    collector_current = 100mA
+    collector_power_dissipation = 150mW
+
+    assert base_1.voltage <= emitter_base_voltage
+    assert base_2.voltage <= emitter_base_voltage
+    assert emitter_1.voltage <= collector_emitter_voltage
+    assert emitter_2.voltage <= collector_emitter_voltage
+    assert collector_1.voltage <= collector_emitter_voltage
+    assert collector_2.voltage <= collector_emitter_voltage
