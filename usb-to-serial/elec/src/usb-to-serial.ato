@@ -10,9 +10,6 @@ component _CP2102N_A02_GQFN24R:
     """
     This is the CP2102N USB to serial IC from Silicon Labs.
     In comparison to the CP2102, the CP2102N has an increased maximum data rate of 3Mbps (vs 2Mbps) and a few additional features.
-    Datasheet: https://www.silabs.com/documents/public/data-sheets/cp2102n-datasheet.pdf
-
-    Included are also the required capacitors, resistors, ESD protection for the D+ and D- lines, and an auto-reset dual transistor.
     """
 
     # component CP2102N-A02-GQFN24R
@@ -30,7 +27,7 @@ component _CP2102N_A02_GQFN24R:
     signal VDD ~ pin 6              # Power Supply
     signal VREGIN ~ pin 7           # Voltage Regulator Input
     signal VBUS ~ pin 8             # USB Bus Voltage
-    signal RSTb ~ pin 9             # Reset. The RSTb pin will be driven low during power-on and power failure reset events
+    signal RSTb ~ pin 9             # Reset. The RSTb pin will be driven low during power_3_3v-on and power_3_3v failure reset events
     signal GPIO_3_WAKEUP ~ pin 11   # General Purpose Input/Output 3 / Wakeup
     signal GPIO_2_RS485 ~ pin 12    # General Purpose Input/Output 2 / RS485
     signal GPIO_1_RXT ~ pin 13      # General Purpose Input/Output 1 / Receive Transmit
@@ -62,15 +59,25 @@ component _CP2102N_A02_GQFN24R:
     uart.rx ~ RXD
     uart.gnd ~ GND
 
-    # Add power (3.3V)
-    power = new Power
-    power.vcc ~ VBUS
-    power.vcc ~ VREGIN
-    power.vcc ~ VDD
-    power.vcc ~ VIO
-    power.gnd ~ GND
+    # Add 3.3V power (3.3V)
+    power_3_3v = new Power
+    power_3_3v.vcc ~ VDD
+    power_3_3v.vcc ~ VIO
+    power_3_3v.gnd ~ GND
+    power_3_3v.voltage = 0V
+    power_3_3v.available_current = 0mA
+    power_3_3v.max_current_draw = 13.7mA
+
+    # Add VBUS power (5V)
+    power_vbus = new Power
+    power_vbus.gnd ~ GND
+    power_vbus.voltage = 0V
 
     # Add specs
+    VDD.voltage = power_3_3v.voltage
+    VIO.voltage = power_3_3v.voltage
+    VREGIN.voltage = 0V
+    VBUS.voltage = power_vbus.voltage
     DPLUS.voltage = 0V to 3.3V
     DMINUS.voltage = 0V to 3.3V
     CTS.voltage = 0V to 3.3V
@@ -83,30 +90,55 @@ component _CP2102N_A02_GQFN24R:
     data_terminal_ready.voltage = DTR.voltage
     DCD.voltage = 0V to 3.3V
 
+    # check specs
+    assert VDD.voltage within 3.0V to 3.6V
+    assert VIO.voltage within 1.71V to 3.6V
+    assert VREGIN.voltage within 3.0 to 5.8V
+    assert VBUS.voltage within 0V to 5.8V
+    assert DPLUS.voltage within 0V to 3.3V
+    assert DMINUS.voltage within 0V to 3.3V
+    assert CTS.voltage within 0V to 3.3V
+    assert RTS.voltage within 0V to 3.3V
+    assert request_to_send.voltage within 0V to 3.3V
+    assert RXD.voltage within 0V to 3.3V
+    assert TXD.voltage within 0V to 3.3V
+    assert DSR.voltage within 0V to 3.3V
+    assert DTR.voltage within 0V to 3.3V
+    assert data_terminal_ready.voltage within 0V to 3.3V
+    assert DCD.voltage within 0V to 3.3V
+    assert power_3_3v.available_current >= power_3_3v.max_current_draw
+
+
 
 module CP2102N from _CP2102N_A02_GQFN24R:
+    """
+    This is the CP2102N USB to serial IC from Silicon Labs.
+    In comparison to the CP2102, the CP2102N has an increased maximum data rate of 3Mbps (vs 2Mbps) and a few additional features.
+
+    Included are also the required capacitors, resistors, ESD protection for the D+ and D- lines, and an auto-reset dual transistor.
+    """
     # Add capacitors for the VREGIN and VDD pins
     small_cap = new Capacitor
     small_cap.value = 0.1uF +/- 10%
     small_cap.package = "0402"
-    small_cap.power ~ power
+    small_cap.power.vcc ~ VDD
 
     large_cap = new Capacitor
     large_cap.value = 10uF +/- 20%
     large_cap.package = "0603"
-    large_cap.power ~ power
+    large_cap.power.vcc ~ VDD
 
-    # Add a pull up resistor for the RSTb pin.
+    # Add pull-up resistor for the RSTb pin
     pull_up_resistor = new Resistor
     pull_up_resistor.value = 1kohm +/- 1%
     pull_up_resistor.package = "0402"
     pull_up_resistor.p1 ~ RSTb
-    pull_up_resistor.p2 ~ power.vcc
+    pull_up_resistor.p2 ~ VIO
 
     # Add ESD protection for the D+ and D- lines
     # (ESD protection for VBUS not included to make it make it easier compatible with USB PD systems where ESD protection is done via the USB PD controller)
     esd_protection_diode = new SP0503BAHTG
-    esd_protection_diode.gnd ~ power.gnd
+    esd_protection_diode.gnd ~ power_3_3v.gnd
     esd_protection_diode.input2 ~ DPLUS
     esd_protection_diode.input3 ~ DMINUS
 
@@ -133,5 +165,31 @@ module CP2102N from _CP2102N_A02_GQFN24R:
     # 0	    1		1	0
 
 
+module CP2102N_powered_by_3_3V from CP2102N:
+    """
+    This is the CP2102N USB to serial IC from Silicon Labs.
+    It is powered by an external 3.3V power source and therefore does not use the integrated voltage regulator.
+    """
+    # Does not use the internal voltage regulator
+    power_3_3v.vcc ~ VREGIN
+    VREGIN.voltage = power_3_3v.voltage
+
+
+module CP2102N_powered_by_USB from CP2102N:
+    """
+    This is the CP2102N USB to serial IC from Silicon Labs.
+    It is powered by the USB bus voltage.
+    """
+    # Uses the internal voltage regulator
+    power_vbus.vcc ~ VREGIN
+    VREGIN.voltage = power_vbus.voltage
+    power_3_3v.available_current = 100mA
+
+
 module CP2102N_dev_module:
     usb_to_serial_ic = new CP2102N
+
+    # TODO make pins accessible so that IC can be powered both via external 3.3V and USB
+
+    # TODO add other components for the development module
+    # TODO: check if adafruit implemented the chip with autoreset the same way
