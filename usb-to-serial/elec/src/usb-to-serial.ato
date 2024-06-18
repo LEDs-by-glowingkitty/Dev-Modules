@@ -119,6 +119,9 @@ module CP2102N from _CP2102N_A02_GQFN24R:
 
     Included are also the required capacitors, resistors, ESD protection for the D+ and D- lines, and an auto-reset dual transistor.
     """
+    signal MCU_IO0 # Connect this pin to the GPIO 0 pin of the ESP32
+    signal MCU_EN # Connect this pin to the EN pin of the ESP32
+
     # Add capacitors for the VREGIN and VDD pins
     small_cap = new Capacitor
     small_cap.value = 0.1uF +/- 10%
@@ -151,8 +154,10 @@ module CP2102N from _CP2102N_A02_GQFN24R:
     auto_reset_transistor = new UMH3N
     auto_reset_transistor.emitter_1 ~ request_to_send
     auto_reset_transistor.base_1 ~ data_terminal_ready
+    auto_reset_transistor.collector_1 ~ MCU_EN
     auto_reset_transistor.emitter_2 ~ data_terminal_ready
     auto_reset_transistor.base_2 ~ request_to_send
+    auto_reset_transistor.collector_2 ~ MCU_IO0
 
     auto_reset_transistor.emitter_1.voltage = request_to_send.voltage
     auto_reset_transistor.base_1.voltage = data_terminal_ready.voltage
@@ -202,16 +207,16 @@ module CP2102N_dev_module:
     screw_terminal_left._2 ~ usb_to_serial_ic.power_3_3v.gnd
     screw_terminal_left._3 ~ usb_to_serial_ic.VREGIN
     screw_terminal_left._4 ~ usb_to_serial_ic.VBUS
-    screw_terminal_left._5 ~ usb_to_serial_ic.RSTb
-    screw_terminal_left._6 ~ usb_to_serial_ic.GPIO_3_WAKEUP
-    screw_terminal_left._7 ~ usb_to_serial_ic.GPIO_2_RS485
-    screw_terminal_left._8 ~ usb_to_serial_ic.GPIO_1_RXT
-    screw_terminal_left._9 ~ usb_to_serial_ic.GPIO_0_TXT
-    screw_terminal_left._10 ~ usb_to_serial_ic.SUSPENDb
+    screw_terminal_left._5 ~ usb_to_serial_ic.MCU_IO0
+    screw_terminal_left._6 ~ usb_to_serial_ic.MCU_EN
+    screw_terminal_left._7 ~ usb_to_serial_ic.RSTb
+    screw_terminal_left._8 ~ usb_to_serial_ic.GPIO_3_WAKEUP
+    screw_terminal_left._9 ~ usb_to_serial_ic.GPIO_2_RS485
+    screw_terminal_left._10 ~ usb_to_serial_ic.GPIO_1_RXT
 
     screw_terminal_bottom = new ScrewTerminal_10P_2_54mm
-    screw_terminal_bottom._1 ~ usb_to_serial_ic.power_3_3v.gnd
-    screw_terminal_bottom._2 ~ usb_to_serial_ic.power_3_3v.vcc
+    screw_terminal_bottom._1 ~ usb_to_serial_ic.GPIO_0_TXT
+    screw_terminal_bottom._2 ~ usb_to_serial_ic.SUSPENDb
     screw_terminal_bottom._3 ~ usb_to_serial_ic.SUSPEND
     screw_terminal_bottom._4 ~ usb_to_serial_ic.CTS
     screw_terminal_bottom._5 ~ usb_to_serial_ic.RTS
@@ -226,5 +231,3 @@ module CP2102N_dev_module:
     mounting_hole_2 = new MountingHole_M3
     mounting_hole_3 = new MountingHole_M3
     mounting_hole_4 = new MountingHole_M3
-
-    # TODO: check if adafruit implemented the chip with autoreset the same way
