@@ -2,6 +2,8 @@ from "generics/resistors.ato" import Resistor
 from "generics/capacitors.ato" import Capacitor
 from "generics/interfaces.ato" import USB2, Power, UART
 
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_10P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
 from "parts/SP0503BAHTG.ato" import SP0503BAHTG
 from "parts/UMH3N.ato" import UMH3N
 
@@ -19,31 +21,31 @@ component _CP2102N_A02_GQFN24R:
     mpn = "C969151"
 
     # pins
-    signal RI_CLK ~ pin 1           # Ring Indicator/Clock Input
+    signal RI_CLK ~ pin 1           # Digital Input. Ring Indicator control input (active low). Digital Output. Clock output.
     signal GND ~ pin 2              # Ground
-    signal DPLUS ~ pin 3            # Data+ Line
-    signal DMINUS ~ pin 4           # Data- Line
-    signal VIO ~ pin 5              # Voltage Input/Output
-    signal VDD ~ pin 6              # Power Supply
-    signal VREGIN ~ pin 7           # Voltage Regulator Input
-    signal VBUS ~ pin 8             # USB Bus Voltage
-    signal RSTb ~ pin 9             # Reset. The RSTb pin will be driven low during power_3_3v-on and power_3_3v failure reset events
-    signal GPIO_3_WAKEUP ~ pin 11   # General Purpose Input/Output 3 / Wakeup
-    signal GPIO_2_RS485 ~ pin 12    # General Purpose Input/Output 2 / RS485
-    signal GPIO_1_RXT ~ pin 13      # General Purpose Input/Output 1 / Receive Transmit
-    signal GPIO_0_TXT ~ pin 14      # General Purpose Input/Output 0 / Transmit
-    signal SUSPENDb ~ pin 15        # Suspend
-    signal SUSPEND ~ pin 17         # Suspend
-    signal CTS ~ pin 18             # Clear To Send
-    signal RTS ~ pin 19             # Request To Send
+    signal DPLUS ~ pin 3            # USB Data Positive
+    signal DMINUS ~ pin 4           # USB Data Negative
+    signal VIO ~ pin 5              # I/O Supply Power Input
+    signal VDD ~ pin 6              # Supply Power Input / 5V Regulator Output
+    signal VREGIN ~ pin 7           # 5V Regulator Input
+    signal VBUS ~ pin 8             # Digital Input. VBUS Sense Input. This pin should be connected to the VBUS signal of a USB network. A 5 V signal on this pin indicates a USB network connection.
+    signal RSTb ~ pin 9             # Active-low Rese
+    signal GPIO_3_WAKEUP ~ pin 11   # Digital Input/Output. General Purpose I/O. Digital Input. Remote USB wakeup interrupt input.
+    signal GPIO_2_RS485 ~ pin 12    # Digital Input/Output. General Purpose I/O. Digital Output. RS485 control signal.
+    signal GPIO_1_RXT ~ pin 13      # Digital Input/Output. General Purpose I/O. Digital Output. Receive LED toggle.
+    signal GPIO_0_TXT ~ pin 14      # Digital Input/Output. General Purpose I/O. Digital Output. Transmit LED toggle.
+    signal SUSPENDb ~ pin 15        # Digital Output. This pin is driven low when the device enters the USB suspend state.
+    signal SUSPEND ~ pin 17         # Digital Output. This pin is driven high when the device enters the USB suspend state.
+    signal CTS ~ pin 18             # Digital Input. Clear To Send control input (active low).
+    signal RTS ~ pin 19             # Digital Output. Ready To Send control output (active low).
     signal request_to_send ~ RTS
-    signal RXD ~ pin 20             # Receive Data
-    signal TXD ~ pin 21             # Transmit Data
-    signal DSR ~ pin 22             # Data Set Ready
+    signal RXD ~ pin 20             # Digital Input. Asynchronous data input (UART Receive).
+    signal TXD ~ pin 21             # Digital Output. Asynchronous data output (UART Transmit).
+    signal DSR ~ pin 22             # Digital Input. Data Set Ready control input (active low).
     signal data_set_ready ~ DSR
-    signal DTR ~ pin 23             # Data Terminal Ready
+    signal DTR ~ pin 23             # Digital Output. Data Terminal Ready control output (active low).
     signal data_terminal_ready ~ DTR
-    signal DCD ~ pin 24             # Data Carrier Detect
+    signal DCD ~ pin 24             # Digital Input. Data Carrier Detect control input (active low).
     signal data_carrier_detect ~ DCD
     GND ~ pin 25                    # Ground
 
@@ -189,7 +191,40 @@ module CP2102N_powered_by_USB from CP2102N:
 module CP2102N_dev_module:
     usb_to_serial_ic = new CP2102N
 
-    # TODO make pins accessible so that IC can be powered both via external 3.3V and USB
+    # Add example power specs
+    usb_to_serial_ic.power_3_3v.voltage = 3.3V
+    usb_to_serial_ic.power_3_3v.available_current = 1A
+    usb_to_serial_ic.VREGIN.voltage = 3.3V
 
-    # TODO add other components for the development module
+    # add screw terminal to connect to other parts
+    screw_terminal_left = new ScrewTerminal_10P_2_54mm
+    screw_terminal_left._1 ~ usb_to_serial_ic.power_3_3v.vcc
+    screw_terminal_left._2 ~ usb_to_serial_ic.power_3_3v.gnd
+    screw_terminal_left._3 ~ usb_to_serial_ic.VREGIN
+    screw_terminal_left._4 ~ usb_to_serial_ic.VBUS
+    screw_terminal_left._5 ~ usb_to_serial_ic.RSTb
+    screw_terminal_left._6 ~ usb_to_serial_ic.GPIO_3_WAKEUP
+    screw_terminal_left._7 ~ usb_to_serial_ic.GPIO_2_RS485
+    screw_terminal_left._8 ~ usb_to_serial_ic.GPIO_1_RXT
+    screw_terminal_left._9 ~ usb_to_serial_ic.GPIO_0_TXT
+    screw_terminal_left._10 ~ usb_to_serial_ic.SUSPENDb
+
+    screw_terminal_bottom = new ScrewTerminal_10P_2_54mm
+    screw_terminal_bottom._1 ~ usb_to_serial_ic.power_3_3v.gnd
+    screw_terminal_bottom._2 ~ usb_to_serial_ic.power_3_3v.vcc
+    screw_terminal_bottom._3 ~ usb_to_serial_ic.SUSPEND
+    screw_terminal_bottom._4 ~ usb_to_serial_ic.CTS
+    screw_terminal_bottom._5 ~ usb_to_serial_ic.RTS
+    screw_terminal_bottom._6 ~ usb_to_serial_ic.RXD
+    screw_terminal_bottom._7 ~ usb_to_serial_ic.TXD
+    screw_terminal_bottom._8 ~ usb_to_serial_ic.DSR
+    screw_terminal_bottom._9 ~ usb_to_serial_ic.DTR
+    screw_terminal_bottom._10 ~ usb_to_serial_ic.DCD
+
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
+    mounting_hole_3 = new MountingHole_M3
+    mounting_hole_4 = new MountingHole_M3
+
     # TODO: check if adafruit implemented the chip with autoreset the same way

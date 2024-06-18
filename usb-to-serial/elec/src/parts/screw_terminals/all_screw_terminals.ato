@@ -1,0 +1,7 @@
+from "parts/screw_terminals/MX128_2_54_10P_GN01_CU_Y_A.ato" import MX128_2_54_10P_GN01_CU_Y_A
+
+
+module ScrewTerminal_10P_2_54mm from MX128_2_54_10P_GN01_CU_Y_A:
+    """
+    This is a 3-pin screw terminal block with 2.54mm pitch.
+    """
