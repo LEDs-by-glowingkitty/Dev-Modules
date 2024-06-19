@@ -126,12 +126,12 @@ module CP2102N from _CP2102N_A02_GQFN24R:
     small_cap = new Capacitor
     small_cap.value = 0.1uF +/- 10%
     small_cap.package = "0402"
-    small_cap.power.vcc ~ VDD
+    small_cap.power ~ power_3_3v
 
     large_cap = new Capacitor
     large_cap.value = 10uF +/- 20%
     large_cap.package = "0603"
-    large_cap.power.vcc ~ VDD
+    large_cap.power ~ power_3_3v
 
     # Add pull-up resistor for the RSTb pin
     pull_up_resistor = new Resistor
@@ -207,24 +207,24 @@ module CP2102N_dev_module:
     screw_terminal_left._2 ~ usb_to_serial_ic.power_3_3v.gnd
     screw_terminal_left._3 ~ usb_to_serial_ic.VREGIN
     screw_terminal_left._4 ~ usb_to_serial_ic.VBUS
-    screw_terminal_left._5 ~ usb_to_serial_ic.MCU_IO0
-    screw_terminal_left._6 ~ usb_to_serial_ic.MCU_EN
-    screw_terminal_left._7 ~ usb_to_serial_ic.RSTb
-    screw_terminal_left._8 ~ usb_to_serial_ic.GPIO_3_WAKEUP
-    screw_terminal_left._9 ~ usb_to_serial_ic.GPIO_2_RS485
-    screw_terminal_left._10 ~ usb_to_serial_ic.GPIO_1_RXT
+    screw_terminal_left._5 ~ usb_to_serial_ic.RXD
+    screw_terminal_left._6 ~ usb_to_serial_ic.TXD
+    screw_terminal_left._7 ~ usb_to_serial_ic.DPLUS
+    screw_terminal_left._8 ~ usb_to_serial_ic.DMINUS
+    screw_terminal_left._9 ~ usb_to_serial_ic.MCU_IO0
+    screw_terminal_left._10 ~ usb_to_serial_ic.MCU_EN
 
-    screw_terminal_bottom = new ScrewTerminal_10P_2_54mm
-    screw_terminal_bottom._1 ~ usb_to_serial_ic.GPIO_0_TXT
-    screw_terminal_bottom._2 ~ usb_to_serial_ic.SUSPENDb
-    screw_terminal_bottom._3 ~ usb_to_serial_ic.SUSPEND
-    screw_terminal_bottom._4 ~ usb_to_serial_ic.CTS
-    screw_terminal_bottom._5 ~ usb_to_serial_ic.RTS
-    screw_terminal_bottom._6 ~ usb_to_serial_ic.RXD
-    screw_terminal_bottom._7 ~ usb_to_serial_ic.TXD
-    screw_terminal_bottom._8 ~ usb_to_serial_ic.DSR
-    screw_terminal_bottom._9 ~ usb_to_serial_ic.DTR
-    screw_terminal_bottom._10 ~ usb_to_serial_ic.DCD
+    screw_terminal_right = new ScrewTerminal_10P_2_54mm
+    screw_terminal_right._1 ~ usb_to_serial_ic.GPIO_0_TXT
+    screw_terminal_right._2 ~ usb_to_serial_ic.GPIO_1_RXT
+    screw_terminal_right._3 ~ usb_to_serial_ic.GPIO_2_RS485
+    screw_terminal_right._4 ~ usb_to_serial_ic.GPIO_3_WAKEUP
+    screw_terminal_right._5 ~ usb_to_serial_ic.SUSPEND
+    screw_terminal_right._6 ~ usb_to_serial_ic.CTS
+    screw_terminal_right._7 ~ usb_to_serial_ic.RTS
+    screw_terminal_right._8 ~ usb_to_serial_ic.DSR
+    screw_terminal_right._9 ~ usb_to_serial_ic.DTR
+    screw_terminal_right._10 ~ usb_to_serial_ic.DCD
 
     # add M3 mounting holes
     mounting_hole_1 = new MountingHole_M3
