@@ -29,7 +29,7 @@ component _CP2102N_A02_GQFN24R:
     signal VDD ~ pin 6              # Supply Power Input / 5V Regulator Output
     signal VREGIN ~ pin 7           # 5V Regulator Input
     signal VBUS ~ pin 8             # Digital Input. VBUS Sense Input. This pin should be connected to the VBUS signal of a USB network. A 5 V signal on this pin indicates a USB network connection.
-    signal RSTb ~ pin 9             # Active-low Rese
+    signal RSTb ~ pin 9             # Active-low Reset
     signal GPIO_3_WAKEUP ~ pin 11   # Digital Input/Output. General Purpose I/O. Digital Input. Remote USB wakeup interrupt input.
     signal GPIO_2_RS485 ~ pin 12    # Digital Input/Output. General Purpose I/O. Digital Output. RS485 control signal.
     signal GPIO_1_RXT ~ pin 13      # Digital Input/Output. General Purpose I/O. Digital Output. Receive LED toggle.
