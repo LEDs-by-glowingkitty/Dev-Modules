@@ -1,6 +1,7 @@
 component DSHP06TSGER:
     # component DSHP06TSGER
     footprint = "SW-SMD_12P-L9.2-W5.4-P1.27-LS8.5"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2207131800_kangshen-DSHP06TSGER_C3293146.pdf"
     lcsc_id = "C3293146"
     mpn = "C3293146"
     # pins

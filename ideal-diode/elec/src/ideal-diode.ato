@@ -1,6 +1,9 @@
-import CSD17581Q3AT from "parts/CSD17581Q3AT.ato"
-import Capacitor from "generics/capacitors.ato"
-import Power from "generics/interfaces.ato"
+from "generics/capacitors.ato" import Capacitor
+from "generics/interfaces.ato" import Power
+
+from "parts/CSD17581Q3AT.ato" import CSD17581Q3AT
+from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_7P_2_54mm
+from "parts/mounting_holes.ato" import MountingHole_M3
 
 
 component _LM74700QDBVRQ1:
@@ -45,9 +48,9 @@ component _LM74700QDBVRQ1:
 module LM74700QDBVRQ1 from _LM74700QDBVRQ1:
     # add the mosfet (n-channel) and connect it to the IC and power input and output
     n_mosfet = new CSD17581Q3AT
-    n_mosfet.GATE ~ GATE
-    n_mosfet.SOURCE ~ power_in.vcc
-    n_mosfet.DRAIN ~ power_out.vcc
+    n_mosfet.gate ~ GATE
+    n_mosfet.source ~ power_in.vcc
+    n_mosfet.drain ~ power_out.vcc
 
     # add the Cin capacitor (22nF)
     cin_capacitor = new Capacitor
@@ -75,12 +78,16 @@ module ideal_diode_dev_module:
     # define example pwoer specs
     ideal_diode.power_in.voltage = 5V
     ideal_diode.power_out.voltage = 5V
+    ideal_diode.n_mosfet.gate.voltage = 5V
 
-    screw_terminal = new ScrewTerminal_5P_2_54mm
+    screw_terminal = new ScrewTerminal_7P_2_54mm
     screw_terminal._1 ~ ideal_diode.power_in.vcc
     screw_terminal._2 ~ ideal_diode.power_in.gnd
-    screw_terminal._3 ~ ideal_diode.power_out.vcc
-    screw_terminal._4 ~ ideal_diode.EN
+    screw_terminal._3 ~ ideal_diode.power_out.gnd
+    screw_terminal._4 ~ ideal_diode.power_out.vcc
+    screw_terminal._5 ~ ideal_diode.EN
+    screw_terminal._6 ~ ideal_diode.VCAP
+    screw_terminal._7 ~ ideal_diode.GATE
 
     # add M3 mounting holes
     mounting_hole_1 = new MountingHole_M3

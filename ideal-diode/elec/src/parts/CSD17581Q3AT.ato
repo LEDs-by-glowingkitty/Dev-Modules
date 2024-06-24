@@ -1,0 +1,99 @@
+from "generics/mosfets.ato" import NFET
+
+
+component CSD17581Q3AT from NFET:
+    """
+    CSD17581Q3A is an N-Channel power MOSFET from Texas Instruments.
+    Rated for up to 30V, 60A continuous drain current, and 3.2mOhm Rds(on) (Vgs=10V).
+    """
+    # component CSD17581Q3AT
+    footprint = "PDFN-8_L3.2-W3.0-P0.65-LS3.3-BL-1"
+    datasheet = "https://www.ti.com/lit/ds/symlink/csd17581q3a.pdf"
+    lcsc_id = "C2866708"
+    mpn = "C2866708"
+
+    # pins
+    gate ~ pin 4
+    source ~ pin 1
+    source ~ pin 2
+    source ~ pin 3
+    drain ~ pin 5
+    drain ~ pin 6
+    drain ~ pin 7
+    drain ~ pin 8
+    drain ~ pin 9
+
+    # add power details
+    current_flowing_through = 0A
+    gate.voltage = 0V
+    source.voltage = 0V
+    drain.voltage = 0V
+
+    # Absolute maximum ratings
+    drain_source_voltage_max = 30V
+    gate_source_voltage_max = 0V +/-20V
+    drain_current_continuous_max = 21A
+    drain_current_pulsed_max = 154A
+    maximum_power_dissipation_max = 2.8W
+    vds = drain_source_voltage_max
+    vgs = gate_source_voltage_max
+    id = drain_current_continuous_max
+    idm = drain_current_pulsed_max
+    pd = maximum_power_dissipation_max
+
+    assert (drain.voltage - source.voltage) <= drain_source_voltage_max
+    assert (gate.voltage - source.voltage) within gate_source_voltage_max
+    assert current_flowing_through <= drain_current_continuous_max
+    assert current_flowing_through <= drain_current_pulsed_max
+
+    # Off characteristics
+    drain_source_breakdown_voltage = 30V # Condition: ID=250µA, VGS=0V
+    zero_gate_voltage_drain_current_max = 1uA # Condition: VDS=30V, VGS=0V
+    gate_body_leakage_current_max = 100nA # Condition: VGS=±12V, VDS=0V
+    bvdss = drain_source_breakdown_voltage
+    idss = zero_gate_voltage_drain_current_max
+    igss = gate_body_leakage_current_max
+
+    assert (drain.voltage - source.voltage) <= drain_source_breakdown_voltage
+
+    # On characteristics
+    gate_treshold_voltage = 1V to 1.7V # Condition: VDS=VGS, ID=250µA
+    drain_source_on_state_resistance_10V_16A = 3.2mohms to 3.8mohms # Condition: VGS=4.5V, ID=16A
+    drain_source_on_state_resistance_4_5V_16A = 3.9ohms to 4.7ohms # Condition: VGS=4.5V, ID=16A
+    forward_transconductance_typ = 78S # Condition: VDS=3V, ID=16A
+    vgs_th = gate_treshold_voltage
+    rds_on_10V_16A = drain_source_on_state_resistance_10V_16A
+    rds_on_4_5V_16A = drain_source_on_state_resistance_4_5V_16A
+    gfs = forward_transconductance_typ
+
+    assert (gate.voltage - source.voltage) >= gate_treshold_voltage
+
+    # Dynamic characteristics
+    input_capacitance = 2800pF to 3640pF # Condition: VGS=0V, VDS=15V, f=1MHz
+    output_capacitance = 342pF to 445pF # Condition: VGS=0V, VDS=15V, f=1MHz
+    reverse_transfer_capacitance = 150pF to 195pF # Condition: VGS=0V, VDS=15V, f=1MHz
+    gate_resistance = 1.8ohms to 3.6ohms # Condition: VGS=0V, VDS=0V, f=1MHz
+    ciss = input_capacitance
+    coss = output_capacitance
+    crss = reverse_transfer_capacitance
+    rg = gate_resistance
+
+    # Switching characteristics
+    turn_on_delay_time_typ = 12ns
+    turn_on_rise_time_typ = 23ns
+    turn_off_delay_time_typ = 23ns
+    turn_off_fall_time_typ = 10ns
+    total_gate_charge_typ = 20nC to 54nC
+    gate_source_charge_typ = 6.9nC
+    gate_drain_charge_typ = 4nC
+    td_on = turn_on_delay_time_typ
+    tr = turn_on_rise_time_typ
+    td_off = turn_off_delay_time_typ
+    tf = turn_off_fall_time_typ
+    qg = total_gate_charge_typ
+    qgs = gate_source_charge_typ
+    qgd = gate_drain_charge_typ
+
+    # Drain-source diode characteristics
+    diode_forward_voltage = 0.8V to 1V # Condition: IS=1A,VGS=0V
+    vsd = diode_forward_voltage
