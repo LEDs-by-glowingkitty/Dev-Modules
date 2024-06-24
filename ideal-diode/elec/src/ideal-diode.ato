@@ -1,0 +1,87 @@
+import CSD17581Q3AT from "parts/CSD17581Q3AT.ato"
+import Capacitor from "generics/capacitors.ato"
+import Power from "generics/interfaces.ato"
+
+
+component _LM74700QDBVRQ1:
+    """
+    This is an ideal diode controller from Texas Instruments. It is used to control the gate of a MOSFET to act as a diode.
+    The purpose of this is to prevent reverse current flow, for example in a battery powered system.
+    """
+    # component LM74700QDBVRQ1
+    footprint = "SOT-23-6_L2.9-W1.6-P0.95-LS2.8-BL"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2302220108_Texas-Instruments-LM74700QDBVRQ1_C2941042.pdf"
+    lcsc_id = "C2941042"
+    mpn = "C2941042"
+
+    # pins
+    signal VCAP ~ pin 1     # Charge pump output. Connect to external charge pump capacitor
+    signal GND ~ pin 2      # Ground pin
+    signal EN ~ pin 3       # Enable pin. Can be connected to ANODE for always ON operation
+    signal CATHODE ~ pin 4  # Cathode of the diode. Connect to the drain of the external N-channel MOSFET
+    signal GATE ~ pin 5     # Gate drive output. Connect to gate of the external N-channel MOSFET
+    signal ANODE ~ pin 6    # Anode of the diode and input power. Connect to the source of the external N-channel MOSFET
+
+    # add power
+    power_in = new Power
+    power_in.voltage = 0V
+
+    power_out = new Power
+    power_out.voltage = 0V
+
+    # Connect the power
+    power_in.vcc ~ ANODE
+    power_out.vcc ~ CATHODE
+    power_in.gnd ~ GND
+    power_out.gnd ~ GND
+
+    input_voltage_range = 3.2V to 65V
+    output_voltage_range = -0.3V to 15V # TODO ask LLM if this is correctly defined, based on datasheet
+
+    assert power_in.voltage within input_voltage_range
+    assert power_out.voltage within output_voltage_range
+
+
+module LM74700QDBVRQ1 from _LM74700QDBVRQ1:
+    # add the mosfet (n-channel) and connect it to the IC and power input and output
+    n_mosfet = new CSD17581Q3AT
+    n_mosfet.GATE ~ GATE
+    n_mosfet.SOURCE ~ power_in.vcc
+    n_mosfet.DRAIN ~ power_out.vcc
+
+    # add the Cin capacitor (22nF)
+    cin_capacitor = new Capacitor
+    cin_capacitor.value = 22nF +/- 10%
+    cin_capacitor.package = "0402"
+    cin_capacitor.power ~ power_in
+
+    # add the VCAP capacitor (100nF)
+    vcap_capacitor = new Capacitor
+    vcap_capacitor.value = 0.1uF +/- 10%
+    vcap_capacitor.package = "0402"
+    vcap_capacitor.p1 ~ power_in.vcc
+    vcap_capacitor.p2 ~ VCAP
+
+    # add the Cout capacitor (100nF)
+    cout_capacitor = new Capacitor
+    cout_capacitor.value = 0.1uF +/- 10%
+    cout_capacitor.package = "0402"
+    cout_capacitor.power ~ power_out
+
+
+module ideal_diode_dev_module:
+    ideal_diode = new LM74700QDBVRQ1
+
+    # define example pwoer specs
+    ideal_diode.power_in.voltage = 5V
+    ideal_diode.power_out.voltage = 5V
+
+    screw_terminal = new ScrewTerminal_5P_2_54mm
+    screw_terminal._1 ~ ideal_diode.power_in.vcc
+    screw_terminal._2 ~ ideal_diode.power_in.gnd
+    screw_terminal._3 ~ ideal_diode.power_out.vcc
+    screw_terminal._4 ~ ideal_diode.EN
+
+    # add M3 mounting holes
+    mounting_hole_1 = new MountingHole_M3
+    mounting_hole_2 = new MountingHole_M3
