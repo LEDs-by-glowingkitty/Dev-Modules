@@ -1,21 +1,109 @@
-component HSM4805:
+from "generics/mosfets.ato" import PFET
+
+
+component HSM4805 from PFET:
     """
     HSM4805 is a dual P-channel MOSFET for up to 30V and up to 9A.
     """
 
     # component HSM4805
     footprint = "SOP-8_L4.9-W3.9-P1.27-LS6.0-BL"
-    datasheet = "https://datasheet.lcsc.com/lcsc/2009041208_HUASHUO-HSM4805_C700973.pdf"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2009041208_HUASHUO-HSM4805_C700973.pdf"
     lcsc_id = "C700973"
     mpn = "C700973"
-    # pins
-    signal GATE1 ~ pin 2
-    signal GATE2 ~ pin 4
-    signal SOURCE1 ~ pin 1
-    signal SOURCE2 ~ pin 3
-    signal DRAIN1 ~ pin 7
-    DRAIN1 ~ pin 8
-    signal DRAIN2 ~ pin 5
-    DRAIN2 ~ pin 6
 
-    # TODO add specs and assertions
+    # pins
+    # MOSFET 1
+    gate ~ pin 2
+    source ~ pin 1
+    drain ~ pin 7
+    drain ~ pin 8
+
+    # MOSFET 2
+    signal gate2 ~ pin 4
+    signal source2 ~ pin 3
+    signal drain2 ~ pin 5
+    drain2 ~ pin 6
+
+    # add power details
+    current_flowing_through = 0A # MOSFET 1
+    current_flowing_through2 = 0A # MOSFET 2
+    gate.voltage = 0V
+    source.voltage = 0V
+    drain.voltage = 0V
+    gate2.voltage = 0V
+    source2.voltage = 0V
+    drain2.voltage = 0V
+
+    # Absolute maximum ratings (Ta=25°C)
+    drain_source_voltage_max = -30V
+    gate_source_voltage_max = 0V +/-25V
+    drain_current_continuous_max = -9A
+    drain_current_pulsed_max = -40A
+    maximum_power_dissipation_max = 2W
+    vds = drain_source_voltage_max
+    vgs = gate_source_voltage_max
+    id = drain_current_continuous_max
+    idm = drain_current_pulsed_max
+    pd = maximum_power_dissipation_max
+
+    assert (drain.voltage - source.voltage) <= (-1*drain_source_voltage_max)
+    assert (drain2.voltage - source2.voltage) <= (-1*drain_source_voltage_max)
+    assert (gate.voltage - source.voltage) within gate_source_voltage_max
+    assert (gate2.voltage - source2.voltage) within gate_source_voltage_max
+    assert current_flowing_through <= (-1*drain_current_continuous_max)
+    assert current_flowing_through <= (-1*drain_current_pulsed_max)
+    assert current_flowing_through2 <= (-1*drain_current_continuous_max)
+    assert current_flowing_through2 <= (-1*drain_current_pulsed_max)
+
+    # Off characteristics
+    drain_source_breakdown_voltage = -30V # Condition: VGS=0V ID=-250μA
+    zero_gate_voltage_drain_current_max = -1uA # Condition: VDS=-30V,VGS=0V
+    gate_body_leakage_current_max = 0nA +/-100nA # Condition: VGS=±20V,VDS=0V
+    bvdss = drain_source_breakdown_voltage
+    idss = zero_gate_voltage_drain_current_max
+    igss = gate_body_leakage_current_max
+
+    assert (drain.voltage - source.voltage) <= (-1*drain_source_breakdown_voltage)
+    assert (drain2.voltage - source2.voltage) <= (-1*drain_source_breakdown_voltage)
+
+    # On characteristics
+    gate_treshold_voltage = -1V to -2.5V # Condition: VDS=VGS,ID=-250μA
+    drain_source_on_state_resistance_10V_8A = 12mohms to 16mohms # Condition: VGS=-10V,ID=-8A
+    drain_source_on_state_resistance_4_5V_5A = 18mohms to 28mohms # Condition: VGS=-4.5V,ID=-5A
+    forward_transconductance_min = 24S # Condition: VDS=-5V,ID=-8A
+    vgs_th = gate_treshold_voltage
+    rds_on_10v_8a = drain_source_on_state_resistance_10V_8A
+    rds_on_4_5v_5a = drain_source_on_state_resistance_4_5V_5A
+    gfs = forward_transconductance_min
+
+    assert (gate.voltage - source.voltage) <= gate_treshold_voltage
+    assert (gate2.voltage - source2.voltage) <= gate_treshold_voltage
+
+    # Dynamic characteristics
+    input_capacitance_typ = 2215pF # Condition: VDS=-15V,VGS=0V,f=1MHz
+    output_capacitance_typ = 310pF # Condition: VDS=-15V,VGS=0V,f=1MHz
+    reverse_transfer_capacitance_typ = 237pF # Condition: VDS=-15V,VGS=0V,f=1MHz
+    ciss = input_capacitance_typ
+    coss = output_capacitance_typ
+    crss = reverse_transfer_capacitance_typ
+
+    # Switching characteristics
+    turn_on_delay_time_typ = 33.8nS # Condition: VDD=-15V, ID=-1A, VGS=-10V,RGEN=3.3Ω
+    turn_on_rise_time_typ = 35.8nS # Condition: VDD=-15V, ID=-1A, VGS=-10V,RGEN=3.3Ω
+    turn_off_delay_time_typ = 72.8nS # Condition: VDD=-15V, ID=-1A, VGS=-10V,RGEN=3.3Ω
+    turn_off_fall_time_typ = 10.6nS # Condition: VDD=-15V, ID=-10A, VGS=-10V,RGEN=1Ω
+    total_gate_charge_typ = 20nC # Condition: VDD=-15V, ID=-8A, VGS=-4.5V
+    gate_source_charge_typ = 5.1nC # Condition: VDD=-15V, ID=-8A, VGS=-4.5V
+    gate_drain_charge_typ = 7.3nC # Condition: VDD=-15V, ID=-8A, VGS=-4.5V
+    td_on = turn_on_delay_time_typ
+    tr = turn_on_rise_time_typ
+    td_off = turn_off_delay_time_typ
+    tf = turn_off_fall_time_typ
+    qg = total_gate_charge_typ
+    qgs = gate_source_charge_typ
+    qgd = gate_drain_charge_typ
+
+    # Drain-source diode characteristics
+    diode_forward_voltage_max = -1.2V # Condition: VGS=0V,IS=-1A
+    vsd = diode_forward_voltage_max
