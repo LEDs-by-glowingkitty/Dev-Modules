@@ -57,16 +57,16 @@ component CSD17581Q3AT from NFET:
     assert (drain.voltage - source.voltage) <= drain_source_breakdown_voltage
 
     # On characteristics
-    gate_treshold_voltage = 1V to 1.7V # Condition: VDS=VGS, ID=250µA
+    gate_threshold_voltage = 1V to 1.7V # Condition: VDS=VGS, ID=250µA
     drain_source_on_state_resistance_10V_16A = 3.2mohms to 3.8mohms # Condition: VGS=4.5V, ID=16A
     drain_source_on_state_resistance_4_5V_16A = 3.9ohms to 4.7ohms # Condition: VGS=4.5V, ID=16A
     forward_transconductance_typ = 78S # Condition: VDS=3V, ID=16A
-    vgs_th = gate_treshold_voltage
+    vgs_th = gate_threshold_voltage
     rds_on_10V_16A = drain_source_on_state_resistance_10V_16A
     rds_on_4_5V_16A = drain_source_on_state_resistance_4_5V_16A
     gfs = forward_transconductance_typ
 
-    assert (gate.voltage - source.voltage) >= gate_treshold_voltage
+    assert (gate.voltage - source.voltage) >= gate_threshold_voltage
 
     # Dynamic characteristics
     input_capacitance = 2800pF to 3640pF # Condition: VGS=0V, VDS=15V, f=1MHz

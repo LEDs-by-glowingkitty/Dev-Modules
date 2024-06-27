@@ -1,0 +1,129 @@
+from "generics/interfaces.ato" import Power
+from "generics/resistors.ato" import Resistor
+from "generics/capacitors.ato" import Capacitor
+
+from "parts/mosfets/HSM4805.ato" import HSM4805
+from "parts/mosfets/AO3401A.ato" import AO3401A
+from "parts/diodes/zener/BZT52C10.ato" import BZT52C10
+
+
+module LoadSwitch_max_5V_3A:
+    # Add power
+    power_in = new Power
+    power_in.voltage = 0V
+    power_in.current = 0A
+    power_out = new Power
+    power_out.voltage = power_in.voltage
+    power_out.current = power_in.current
+
+    signal en
+    en.voltage = 0V
+
+    # add the MOSFETs
+    p_mosfet_1 = new AO3401A
+    p_mosfet_2 = new AO3401A
+    p_mosfet_1.gate ~ p_mosfet_2.gate
+    p_mosfet_1.source ~ p_mosfet_2.source
+    p_mosfet_1.drain ~ power_in.vcc
+    p_mosfet_2.drain ~ power_out.vcc
+
+    # Match voltages and currents
+    p_mosfet_1.current_flowing_through = power_in.current
+    p_mosfet_2.current_flowing_through = power_out.current
+    p_mosfet_1.drain.voltage = power_in.voltage
+    p_mosfet_2.drain.voltage = power_out.voltage
+    p_mosfet_1.drain.current = power_in.current
+    p_mosfet_2.drain.current = power_out.current
+    p_mosfet_1.gate.voltage = en.voltage
+    p_mosfet_2.gate.voltage = en.voltage
+
+    # add voltage divider
+    # add pull up resistor
+    pull_up_resistor = new Resistor
+    pull_up_resistor.value = 49.9kohm +/- 1%
+    pull_up_resistor.package = "0603"
+    pull_up_resistor.p1 ~ power_in.vcc
+    pull_up_resistor.p2 ~ p_mosfet_1.gate
+
+    # add pull down resistor
+    pull_down_resistor = new Resistor
+    pull_down_resistor.value = 1kohm +/- 1%
+    pull_down_resistor.package = "0603"
+    pull_down_resistor.p1 ~ p_mosfet_1.gate
+    pull_down_resistor.p2 ~ en
+
+
+module LoadSwitch_max_20V_5A:
+    # Add the power interfaces
+    power_in = new Power
+    power_in.voltage = 0V
+    power_in.current = 0A
+    power_out = new Power
+    power_out.voltage = power_in.voltage
+    power_out.current = power_in.current
+
+    signal en
+    en.voltage = 0V
+
+    # This dual MOSFET connects VBUS to VDC_OUT, if USB PD can be negotiated successfully
+    dual_p_mosfet = new HSM4805
+    dual_p_mosfet.gate ~ dual_p_mosfet.gate2
+    dual_p_mosfet.source ~ dual_p_mosfet.source2
+    dual_p_mosfet.drain ~ power_in.vcc
+    dual_p_mosfet.drain2 ~ power_out.vcc
+
+    # Match voltages and currents
+    dual_p_mosfet.current_flowing_through = power_in.current
+    dual_p_mosfet.current_flowing_through2 = power_out.current
+    dual_p_mosfet.drain.voltage = power_in.voltage
+    dual_p_mosfet.drain2.voltage = power_out.voltage
+    dual_p_mosfet.drain.current = power_in.current
+    dual_p_mosfet.drain2.current = power_out.current
+    dual_p_mosfet.gate.voltage = en.voltage
+    dual_p_mosfet.gate2.voltage = en.voltage
+
+    # Add a cap for VBUS
+    vbus_cap = new Capacitor
+    vbus_cap.value = 3.3uF +/- 10%
+    vbus_cap.package = "0805"
+    vbus_cap.power ~ power_in
+
+    # Add the input cap for the load switch
+    load_switch_input_cap = new Capacitor
+    load_switch_input_cap.value = 1uF +/- 10%
+    load_switch_input_cap.package = "0603"
+    load_switch_input_cap.p1 ~ power_in.vcc
+    load_switch_input_cap.p2 ~ dual_p_mosfet.gate
+
+    # Add the output cap for the load switch
+    load_switch_output_cap = new Capacitor
+    load_switch_output_cap.value = 1uF +/- 10%
+    load_switch_output_cap.package = "0603"
+    load_switch_output_cap.p1 ~ power_out.vcc
+    load_switch_output_cap.p2 ~ dual_p_mosfet.gate
+
+    # Add a resistor for between the gate of the dual_p_mosfet and VBUS
+    fet_gate_vbus_resistor = new Resistor
+    fet_gate_vbus_resistor.value = 10kohm +/- 1%
+    fet_gate_vbus_resistor.package = "0603"
+    fet_gate_vbus_resistor.p1 ~ power_in.vcc
+    fet_gate_vbus_resistor.p2 ~ dual_p_mosfet.gate
+
+    # Add the pull-down(?) resistor connected to the VBUS_FET_EN pin
+    vbus_fet_en_resistor = new Resistor
+    vbus_fet_en_resistor.value = 1kohm +/- 1%
+    vbus_fet_en_resistor.package = "0603"
+    vbus_fet_en_resistor.p1 ~ en
+    vbus_fet_en_resistor.p2 ~ dual_p_mosfet.gate
+
+    # Add a resistor for between the source and the gate of the dual_p_mosfet
+    fet_src_gate_resistor = new Resistor
+    fet_src_gate_resistor.value = 49.9kohm +/- 1%
+    fet_src_gate_resistor.package = "0603"
+    fet_src_gate_resistor.p1 ~ dual_p_mosfet.source
+    fet_src_gate_resistor.p2 ~ dual_p_mosfet.gate
+
+    # Add a zener diode for between the source and the gate of the dual_p_mosfet
+    esd_protection_fet_src_gate_zener_diode = new BZT52C10
+    esd_protection_fet_src_gate_zener_diode.anode ~ dual_p_mosfet.gate
+    esd_protection_fet_src_gate_zener_diode.cathode ~ dual_p_mosfet.source

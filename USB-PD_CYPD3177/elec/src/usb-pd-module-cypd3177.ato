@@ -1,37 +1,230 @@
 from "generics/interfaces.ato" import I2C, USB_PD, Power
+from "generics/capacitors.ato" import Capacitor
+from "generics/resistors.ato" import Resistor
 from "generics/vdivs.ato" import VDiv
-from "submodules/CYPD3177_WithCoreParts.ato" import CYPD3177_WithCoreParts
-from "submodules/CYPD3177_voltage_dividers.ato" import All_VDivs_With_DIP_swiches, VDiv_5_1K_and_1K, VDiv_5_1K_and_2_4K
+
+from "parts/voltage_dividers.ato" import All_VDivs_With_DIP_swiches, VDiv_5_1K_and_1K, VDiv_5_1K_and_2_4K
+from "parts/loadswitches.ato" import LoadSwitch_max_20V_5A, LoadSwitch_max_5V_3A
 from "parts/screw_terminals/all_screw_terminals.ato" import ScrewTerminal_7P_2_54mm
 from "parts/mounting_holes.ato" import MountingHole_M3
 from "parts/test_points.ato" import TestPoint_Pad_D_1_5mm
 
 
-module CYPD3177_min_9V_2A from CYPD3177_WithCoreParts:
+component _CYPD3177:
+    """
+    This is the CYPD3177-24LQXQ, a USB-PD controller from Cypress Semiconductor.
+    It can negotiate power delivery with a USB-PD power supply, with an output voltage of 5V to 20V and a current of up to 5A (100W max).
+    It also has a SAFE_PWR output, which can output 5V at 900mA, if the negotiation of USB PD failed (because the device is connected to a non-PD power supply).
+    The requested voltage and amps are set via resistors.
+    """
+
+    # component CYPD3177-24LQXQ_C2959321
+    footprint = "TQFN-24_L4.0-W4.0-P0.50-TL-EP2.8"
+    datasheet = "https://www.infineon.com/dgdl/Infineon-EZ-PD_BCR_Datasheet_USB_Type-C_Port_Controller_for_Power_Sinks-DataSheet-v03_00-EN.pdf?fileId=8ac78c8c7d0d8da4017d0ee7ce9d70ad"
+    evaluation_guide = "https://www.infineon.com/dgdl/Infineon-CY4533_EZ-PD_Barrel_Connector_Replacement_EVK_Guide-UserManual-v01_00-EN.pdf?fileId=8ac78c8c7d0d8da4017d0f013aac1887"
+    lcsc_id = "C2959321"
+    mpn = "C2959321"
+
+    # pins
+    signal VBUS_MIN ~ pin 1         # Connect a resistor divider on this to 3.3 V (from the VDDD pin) to indicate the minimum voltage needed by the system from the attached power adapter.
+    signal VBUS_MAX ~ pin 2         # Connect a resistor divider on this to 3.3 V (from the VDDD pin) to indicate the maximum voltage needed by the system from the attached power adapter.
+    signal VBUS_FET_EN ~ pin 3      # Connect this signal to the gate of a FET through a series resistor. This pin is the output of a PMOS FET gate driver that is slew-rate controlled.
+                                    # This signal is enabled when the EZ-PD BCR device successfully negotiates a power contract within the requested range.
+    signal SAFE_PWR_EN ~ pin 4      # Connect this signal to the gate of a FET through a series resistor. This pin is the output of a PMOS FET gate driver.
+                                    # This signal is enabled when the EZ-PD BCR device fails to negotiate for higher power and defaults to 5 V.
+    signal ISNK_COARSE ~ pin 5      # Connect a resistor divider on these pins to 3.3 V (from the VDDD pin) to set the operating current requested from the power adapter.
+    signal ISNK_FINE ~ pin 6        # same as ISNK_COARSE
+    signal HPI_INT ~ pin 7          # Active LOW HPI Interrupt pin
+    signal GPIO_1 ~ pin 8           # Additional GPIO that can be set up over the HPI interface.
+    signal FAULT ~ pin 9            # The EZ-PD BCR device pulls this line high if the power adapter cannot supply the required voltage or current or if an OVP event was detected. The pin is low otherwise.
+    signal FLIP ~ pin 10            # The EZ-PD BCR device pulls this line low if no device is attached or if CC polarity is un-flipped (CC1 connected).
+                                    # If a device is attached on CC2 (polarity is flipped), the EZ-PD BCR device pulls this line high.
+                                    # This is an open drain I/O that requires an external pull-up resistor.
+                                    # The presence or the value of the pull-up resistor connected to this pin determines the data capability reported in the UFP Vendor Data Object (VDO) by the BCR device to the Downstream Facing Port (DFP).
+                                    # If there is no pull-up resistor on this pin or if its value is less than or equal to 4.7 kΩ, then the UFP VDO data capability bit is set to 1, which correlates to the port being data capable.
+                                    # If the value of the pull-up resistor is 50 kΩ, then the UFP VDO data capability bit is set to 0, which correlates to the port not being data capable.
+    signal VDC_OUT ~ pin 11         # Connect this pin to the output of the PFETs controlled by the VBUS_FET_EN. This is used for monitoring the VBUS output. This is the power output of the system.
+    signal HPI_SDA ~ pin 12         # This is an I2C slave interface provided for a host processor to control and monitor the EZ-PD BCR device. For more details, refer to the HPI Specification for EZ-PD BCR device.
+    signal HPI_SCL ~ pin 13         # same as HPI_SDA
+    signal CC2 ~ pin 14             # Communication Channel 2 pin used to negotiate a voltage/current with the attached adapter
+    signal CC1 ~ pin 15             # Communication Channel 1 pin used to negotiate a voltage/current with the attached adapter
+    signal Dminus ~ pin 16          # Leave this pin unconnected
+    signal Dplus ~ pin 17           # Leave this pin unconnected
+    signal VBUS_IN ~ pin 18         # Connect to VBUS of USB Type-C connector. Used to supply power to the EZ-PD BCR device and monitor incoming voltage.
+    signal GND ~ pin 19             # System Ground pin
+    signal DNU1 ~ pin 20            # Leave this pin unconnected
+    signal DNU2 ~ pin 21            # Leave this pin unconnected
+    GND ~ pin 22                    # Ground pin, connect to USB Type-C connector GND.
+    signal VDDD ~ pin 23            # Output of internal 3.3-V regulator. Connect 1 μF and 2x 100-nF capacitors
+    signal VCCD ~ pin 24            # Output of internal 1.8-V regulator. Connect a 1-μF decoupling capacitor
+    signal EPAD ~ pin 25            # Ground
+
+    # Connect the EPAD to GND
+    EPAD ~ GND
+
+    # Add the I2C interface
+    i2c = new I2C
+    i2c.sda ~ HPI_SDA
+    i2c.scl ~ HPI_SCL
+    i2c.gnd ~ GND
+
+    # Add the USB PD interface
+    usb_pd = new USB_PD
+    usb_pd.cc1 ~ CC1
+    usb_pd.cc2 ~ CC2
+    usb_pd.vbus ~ VBUS_IN
+    usb_pd.gnd ~ GND
+
+    # Add power
+    power_in = new Power
+    power_in.vcc ~ VBUS_IN
+    power_in.gnd ~ GND
+    power_in.voltage = 0V
+    power_in.current = 0A to 5A
+    power_out_vbus = new Power
+    power_out_vbus.vcc ~ VDC_OUT
+    power_out_vbus.gnd ~ GND
+    power_out_vbus.voltage = 4.8V to 21V
+    power_out_vbus.current = 0A to 5A
+    power_out_5v = new Power
+    power_out_5v.gnd ~ GND
+    power_out_5v.voltage = 4.8V to 5.2V
+    power_out_5v.current = 0A to 0.9A
+    power_3_3v = new Power
+    power_3_3v.vcc ~ VDDD
+    power_3_3v.gnd ~ GND
+    power_3_3v.voltage = 3.3V
+    power_1_8v = new Power
+    power_1_8v.vcc ~ VCCD
+    power_1_8v.gnd ~ GND
+    power_1_8v.voltage = 1.8V
+
+    VBUS_FET_EN.voltage = power_3_3v.voltage
+    SAFE_PWR_EN.voltage = power_3_3v.voltage
+
+    # add checks based on the datasheet
+    assert power_in.voltage within 0V to 30V
+    assert power_out_vbus.voltage within 4.8V to 21V
+    assert power_out_5v.voltage within 4.8V to 5.2V
+    assert power_3_3v.voltage within 3.1V to 3.5V
+    assert power_1_8v.voltage within 1.7V to 1.9V
+
+
+module CYPD3177 from _CYPD3177:
+    """
+    This is a module for the CYPD3177, where all the core components are added.
+    The setup for requesting a certain voltage and current is not added here.
+    """
+    # Add a 100W load switch for the VDC_OUT
+    power_out_vbus_load_switch = new LoadSwitch_max_20V_5A
+    power_out_vbus_load_switch.en ~ VBUS_FET_EN
+    power_out_vbus_load_switch.power_in ~ power_in
+    power_out_vbus_load_switch.power_out ~ power_out_vbus
+
+    # Match voltages and currents
+    power_out_vbus_load_switch.en.voltage = VBUS_FET_EN.voltage
+    power_out_vbus_load_switch.power_in.voltage = power_in.voltage
+    power_out_vbus_load_switch.power_out.voltage = power_out_vbus.voltage
+    power_out_vbus_load_switch.power_in.current = power_in.current
+    power_out_vbus_load_switch.power_out.current = power_out_vbus.current
+
+    # Add the 5V Safe Output load switch
+    power_out_5v_load_switch = new LoadSwitch_max_5V_3A
+    power_out_5v_load_switch.en ~ SAFE_PWR_EN
+    power_out_5v_load_switch.power_in ~ power_in
+    power_out_5v_load_switch.power_out ~ power_out_5v
+
+    # Match voltages and currents
+    power_out_5v_load_switch.en.voltage = SAFE_PWR_EN.voltage
+    power_out_5v_load_switch.power_in.voltage = power_in.voltage
+    power_out_5v_load_switch.power_out.voltage = power_out_5v.voltage
+    power_out_5v_load_switch.power_in.current = power_in.current
+    power_out_5v_load_switch.power_out.current = power_out_5v.current
+
+    # Add 390pF caps for the CC1 and CC2 pins (as in evaluation board schematic)
+    cc1_cap = new Capacitor
+    cc1_cap.value = 390pF +/- 5%
+    cc1_cap.package = "0402"
+    cc1_cap.power.vcc ~ usb_pd.cc1
+    cc1_cap.power.gnd ~ power_in.gnd
+
+    cc2_cap = new Capacitor
+    cc2_cap.value = 390pF +/- 5%
+    cc2_cap.package = "0402"
+    cc2_cap.power.vcc ~ usb_pd.cc2
+    cc2_cap.power.gnd ~ power_in.gnd
+
+    # Add 3.3uF cap for the VBUS of the USB-C port
+    vbus_cap = new Capacitor
+    vbus_cap.value = 3.3uF +/- 10%
+    vbus_cap.package = "0805"
+    vbus_cap.power ~ power_in
+
+    # Add 1uF cap for the VCCD (1.8V) to the CYPD3177
+    vccd_cap = new Capacitor
+    vccd_cap.value = 1uF +/- 10%
+    vccd_cap.package = "0603"
+    vccd_cap.power ~ power_1_8v
+
+    # Add 1uF & 0.1uF caps for the VDDD (3.3V) to the CYPD3177
+    vddd_cap_1 = new Capacitor
+    vddd_cap_1.value = 1uF +/- 10%
+    vddd_cap_1.package = "0603"
+    vddd_cap_1.power ~ power_3_3v
+
+    vddd_cap_2 = new Capacitor
+    vddd_cap_2.value = 0.1uF +/- 10%
+    vddd_cap_2.package = "0402"
+    vddd_cap_2.power ~ power_3_3v
+
+    vddd_cap_3 = new Capacitor
+    vddd_cap_3.value = 0.1uF +/- 10%
+    vddd_cap_3.package = "0402"
+    vddd_cap_3.power ~ power_3_3v
+
+    # Add a pull down resistor for the FAULT pin, so that it is not floating
+    fault_pull_down_resistor = new Resistor
+    fault_pull_down_resistor.value = 100kohm +/- 5%
+    fault_pull_down_resistor.package = "0603"
+    fault_pull_down_resistor.p1 ~ FAULT
+    fault_pull_down_resistor.p2 ~ power_3_3v.gnd
+
+    # Add a pull up resistor for the FLIP pin, so that it is not floating
+    flip_pull_up_resistor = new Resistor
+    flip_pull_up_resistor.value = 2kohm +/- 1%
+    flip_pull_up_resistor.package = "0402"
+    flip_pull_up_resistor.p1 ~ FLIP
+    flip_pull_up_resistor.p2 ~ power_3_3v.vcc
+
+
+module CYPD3177_min_9V_2A from CYPD3177:
     """
     This is a module for the CYPD3177, where the CYPD3177 is setup to request at least 9V at 2A from the power supply.
     If the power supply cannot provide this, the CYPD3177 will give out via SAVE_PWR 5V at 900mA.
     """
+    power_in.voltage = 9V to 20V
+    power_in.current = 2A to 5A
+    power_out_vbus.voltage = power_in.voltage
+    power_out_vbus.current = power_in.current
 
     # Request 9V (min)
     voltage_request_voltage_divider = new VDiv_5_1K_and_1K
     voltage_request_voltage_divider.power ~ power_3_3v
-    voltage_request_voltage_divider.output.io ~ ic.VBUS_MIN
+    voltage_request_voltage_divider.output.io ~ VBUS_MIN
 
     # Request 20V (max) (via pull up to 3.3V)
-    ic.VBUS_MAX ~ power_3_3v.vcc
+    VBUS_MAX ~ power_3_3v.vcc
 
     # Request 2A (min)
     current_request_voltage_divider = new VDiv_5_1K_and_2_4K
     current_request_voltage_divider.power ~ power_3_3v
-    current_request_voltage_divider.output.io ~ ic.ISNK_COARSE
+    current_request_voltage_divider.output.io ~ ISNK_COARSE
 
     # Request +0mA (via pull down to GND)
-    ic.ISNK_FINE ~ power.gnd
+    ISNK_FINE ~ power.gnd
 
 
-
-module CYPD3177_dev_module from CYPD3177_WithCoreParts:
+module CYPD3177_dev_module from CYPD3177:
     """
     This is a development module, which can set any minimum & maximum voltage and minimum current.
     """
@@ -40,59 +233,42 @@ module CYPD3177_dev_module from CYPD3177_WithCoreParts:
     voltage_dividers_and_dip_switches = new All_VDivs_With_DIP_swiches
     voltage_dividers_and_dip_switches.power_3_3v ~ power_3_3v
     voltage_dividers_and_dip_switches.power_3_3v.voltage = power_3_3v.voltage
-    voltage_dividers_and_dip_switches.vbus_min ~ ic.VBUS_MIN
-    voltage_dividers_and_dip_switches.vbus_max ~ ic.VBUS_MAX
-    voltage_dividers_and_dip_switches.isnk_coarse ~ ic.ISNK_COARSE
-    voltage_dividers_and_dip_switches.isnk_fine ~ ic.ISNK_FINE
+    voltage_dividers_and_dip_switches.vbus_min ~ VBUS_MIN
+    voltage_dividers_and_dip_switches.vbus_max ~ VBUS_MAX
+    voltage_dividers_and_dip_switches.isnk_coarse ~ ISNK_COARSE
+    voltage_dividers_and_dip_switches.isnk_fine ~ ISNK_FINE
 
     # add screw terminal for external components
-    # External accessible pins:
-    # - VBUS_IN
-    # - USB PD OUT
-    # - Safe 5V OUT
-    # - GND
-    # - CC1
-    # - CC2
-    # - FAULT
     screw_terminal = new ScrewTerminal_7P_2_54mm
-    screw_terminal._1 ~ ic.VBUS_IN
+    screw_terminal._1 ~ VBUS_IN
     screw_terminal._2 ~ power_out_vbus_load_switch.power_out.vcc
     screw_terminal._3 ~ power_out_5v_load_switch.power_out.vcc
-    screw_terminal._4 ~ power.gnd
-    screw_terminal._5 ~ ic.CC1
-    screw_terminal._6 ~ ic.CC2
-    screw_terminal._7 ~ ic.FAULT
+    screw_terminal._4 ~ power_in.gnd
+    screw_terminal._5 ~ CC1
+    screw_terminal._6 ~ CC2
+    screw_terminal._7 ~ FAULT
 
     # Pads which are accessible via mini pads on pcb (for testing and soldering)
-    # - D+
-    # - D-
-    # - 3.3V
-    # - 1.8V
-    # - SDA
-    # - SCL
-    # - INT
-    # - GPIO 1
-    # - FLIP
     test_pad_1 = new TestPoint_Pad_D_1_5mm
-    test_pad_1.pad ~ power.gnd
+    test_pad_1.pad ~ power_in.gnd
     test_pad_2 = new TestPoint_Pad_D_1_5mm
-    test_pad_2.pad ~ ic.Dplus
+    test_pad_2.pad ~ Dplus
     test_pad_3 = new TestPoint_Pad_D_1_5mm
-    test_pad_3.pad ~ ic.Dminus
+    test_pad_3.pad ~ Dminus
     test_pad_4 = new TestPoint_Pad_D_1_5mm
     test_pad_4.pad ~ power_3_3v.vcc
     test_pad_5 = new TestPoint_Pad_D_1_5mm
     test_pad_5.pad ~ power_1_8v.vcc
     test_pad_6 = new TestPoint_Pad_D_1_5mm
-    test_pad_6.pad ~ ic.HPI_SDA
+    test_pad_6.pad ~ HPI_SDA
     test_pad_7 = new TestPoint_Pad_D_1_5mm
-    test_pad_7.pad ~ ic.HPI_SCL
+    test_pad_7.pad ~ HPI_SCL
     test_pad_8 = new TestPoint_Pad_D_1_5mm
-    test_pad_8.pad ~ ic.HPI_INT
+    test_pad_8.pad ~ HPI_INT
     test_pad_9 = new TestPoint_Pad_D_1_5mm
-    test_pad_9.pad ~ ic.GPIO_1
+    test_pad_9.pad ~ GPIO_1
     test_pad_10 = new TestPoint_Pad_D_1_5mm
-    test_pad_10.pad ~ ic.FLIP
+    test_pad_10.pad ~ FLIP
 
     # add M3 mounting holes (4x)
     mounting_hole_1 = new MountingHole_M3

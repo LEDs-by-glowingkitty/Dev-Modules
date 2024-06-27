@@ -47,20 +47,20 @@ component AO3400A from NFET:
     assert (drain.voltage - source.voltage) <= drain_source_breakdown_voltage
 
     # On characteristics
-    gate_treshold_voltage = 0.65V to 1.45V # Condition: VDS=VGS, ID=250µA
+    gate_threshold_voltage = 0.65V to 1.45V # Condition: VDS=VGS, ID=250µA
     on_state_drain_current_min = 30A # Condition: VGS=4.5V, VDS=5V
     drain_source_on_state_resistance_10V_5_7A = 18mohms to 26.5mohms # Condition: VGS=4.5V, ID=5.7A
     drain_source_on_state_resistance_4_5V_5A = 19mohms to 32mohms # Condition: VGS=4.5V, ID=5A
     drain_source_on_state_resistance_2_5V_3A = 24mohms to 48mohms # Condition: VGS=2.5V, ID=3A
     forward_transconductance_typ = 33S # Condition: VDS=5V, ID=5.7A
-    vgs_th = gate_treshold_voltage
+    vgs_th = gate_threshold_voltage
     id_on = on_state_drain_current_min
     rds_on_10V_5_7A = drain_source_on_state_resistance_10V_5_7A
     rds_on_4_5V_5A = drain_source_on_state_resistance_4_5V_5A
     rds_on_2_5V_3A = drain_source_on_state_resistance_2_5V_3A
     gfs = forward_transconductance_typ
 
-    assert (gate.voltage - source.voltage) >= gate_treshold_voltage
+    assert (gate.voltage - source.voltage) >= gate_threshold_voltage
 
     # Dynamic characteristics
     input_capacitance = 630pF # Condition: VGS=0V, VDS=15V, f=1MHz

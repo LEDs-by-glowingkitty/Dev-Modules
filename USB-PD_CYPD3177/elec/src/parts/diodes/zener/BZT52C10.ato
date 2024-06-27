@@ -8,7 +8,7 @@ component BZT52C10 from ZenerDiode:
 
     # component BZT52C10
     footprint = "D_SOD-123F"
-    datasheet = "https://datasheet.lcsc.com/lcsc/2109011130_YONGYUTAI-BZT52C10_C2891778.pdf"
+    datasheet = "https://wmsc.lcsc.com/wmsc/upload/file/pdf/v2/lcsc/2109011130_YONGYUTAI-BZT52C10_C2891778.pdf"
     lcsc_id = "C2891778"
     mpn = "C2891778"
 
@@ -18,4 +18,31 @@ component BZT52C10 from ZenerDiode:
     output ~ pin 1
     input ~ pin 2
 
-    # TODO add specs and assertions
+    input.voltage = 0V
+    input.current = 0A
+    output.voltage = 0V
+    output.current = 0A
+
+    # power specs
+    power_dissipation = 0.5W
+    forward_voltage = 0.9V
+    pd = power_dissipation
+    vf = forward_voltage
+
+    # electrical specs
+    zener_voltage_range = 9.4V to 10.6V
+    zener_voltage_range_izt = 5mA
+    vz = zener_voltage_range
+
+    maximum_zener_impedance = 20ohms to 150ohms
+    maximum_zener_impedance_izk = 1mA
+    zzt = maximum_zener_impedance
+
+    maximum_reverse_current_ir = 0.2uA
+    maximum_reverse_current_v = 7V
+
+    # Add assertions for voltage limits
+    assert input.voltage <= zener_voltage_range
+
+    # Assert reverse current limit
+    assert input.current <= maximum_reverse_current_ir

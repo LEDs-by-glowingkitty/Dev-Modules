@@ -53,16 +53,16 @@ component NCE30P12S from PFET:
 
 
     # On characteristics
-    gate_treshold_voltage = -1V to -3V # Condition: VDS=VGS,ID=-250μA
+    gate_threshold_voltage = -1V to -3V # Condition: VDS=VGS,ID=-250μA
     drain_source_on_state_resistance_10V_10A = 11.5mohms to 15mohms # Condition: VGS=-10V,ID=-10A
     drain_source_on_state_resistance_4_5V_7A = 18mohms to 25mohms # Condition: VGS=-4.5V,ID=-7A
     forward_transconductance_min = 20S # Condition: VDS=-10V,ID=-10A
-    vgs_th = gate_treshold_voltage
+    vgs_th = gate_threshold_voltage
     rds_on_10v_10a = drain_source_on_state_resistance_10V_10A
     rds_on_4_5v_7a = drain_source_on_state_resistance_4_5V_7A
     gfs = forward_transconductance_min
 
-    assert (gate.voltage - source.voltage) <= gate_treshold_voltage
+    assert (gate.voltage - source.voltage) <= gate_threshold_voltage
 
     # Dynamic characteristics
     input_capacitance_typ = 1750pF # Condition: VDS=-15V,VGS=0V,f=1MHz
