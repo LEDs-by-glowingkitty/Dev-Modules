@@ -138,7 +138,7 @@ module CYPD3177 from _CYPD3177:
     power_out_5v_load_switch.en.voltage = SAFE_PWR_EN.voltage
     power_out_5v_load_switch.power_in.voltage = power_in.voltage
     power_out_5v_load_switch.power_out.voltage = power_out_5v.voltage
-    power_out_5v_load_switch.power_in.current = power_in.current
+    power_out_5v_load_switch.power_in.current = power_out_5v.current
     power_out_5v_load_switch.power_out.current = power_out_5v.current
 
     # Add 390pF caps for the CC1 and CC2 pins (as in evaluation board schematic)
