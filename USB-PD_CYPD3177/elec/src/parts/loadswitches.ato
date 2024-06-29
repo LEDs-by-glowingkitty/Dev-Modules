@@ -86,6 +86,8 @@ module LoadSwitch_max_20V_5A:
     vbus_cap = new Capacitor
     vbus_cap.value = 3.3uF +/- 10%
     vbus_cap.package = "0805"
+    vbus_cap.mpn = "C342775" # can handle 50V max, unlike many others which can only handle 16V max
+    vbus_cap.lcsc_id = "C342775"
     vbus_cap.power ~ power_in
 
     # Add the input cap for the load switch

@@ -158,6 +158,8 @@ module CYPD3177 from _CYPD3177:
     vbus_cap = new Capacitor
     vbus_cap.value = 3.3uF +/- 10%
     vbus_cap.package = "0805"
+    vbus_cap.mpn = "C342775" # can handle 50V max, unlike many others which can only handle 16V max
+    vbus_cap.lcsc_id = "C342775"
     vbus_cap.power ~ power_in
 
     # Add 1uF cap for the VCCD (1.8V) to the CYPD3177
