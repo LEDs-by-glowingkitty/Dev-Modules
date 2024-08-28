@@ -9,6 +9,19 @@
 - 2x levelshifter
 - 4x big cap
 
+# What modules does GlowTower / GlowLight not need anymore?
+- 4x MOSFET power switch for LEDs (because 5V buck converter will now only power LEDs and therefore LEDs can be easily disconnected from power by turning on/off converter)
+- 1x ideal diode (same reason)
+- 1x CP2101N (because programmming is done via external ESP32 programmer once and then via wifi)
+- 1x 3.3V LDO (will be replaced with 3.3V buck converter)
+
+# Next steps
+1. design missing pcb modules
+2. order missing pcb modules
+3. test updated pcb design with pcb modules
+4. once testing completed, design updated completed pcb
+5. order updated completed GlowTower PCB
+
 
 # Issues
 - microphone doesn't seem to work with WLED, gives out nonesense data
