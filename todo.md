@@ -6,11 +6,18 @@
 - connecting via Matter to ESP32 H2 doesn't work on outside home wifi
   - -> test again at home
 
-# Test
-- ESP32 H2: write firmware with matter and SPI communication
-- ESP32 H2: output SPI signal to ESP32 WROOM running WLED
+# Test Home
+- ESP32 H2: test matter connection
+- ESP32 WROOM: test matter connection
+
+# Test xHain
 - WS2812B LEDs: how much current do 240 really consume at max power? at 5V? 4.8V? 4.1V?
 - ESP32 WROOM vs ESP32 H2 MINI: how much power does each consume using matter?
+- EPS32 WROOM: if EN pin is low, does it really not consume any power?
+
+# Other tests
+- ESP32 H2: write firmware with matter and SPI communication
+- ESP32 H2: output SPI signal to ESP32 WROOM running WLED
 
 # PCB design tasks
 - TPS54202 Buck converter PCB
