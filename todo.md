@@ -2,10 +2,10 @@
 # What modules does GlowTower / GlowLight need?
 - 1x USB PD USB-C port
 - 1x USB PD IC (requests 9V to 20V)
-- 1x Buck converter 5V
-- 1x Buck converter 3.3V
+- 1x Buck converter 5V (-> design pcb module)
+- 1x Buck converter 3.3V (-> design pcb module)
 - 2x ESP32 WROOM (or 1x ESP32 WROOM and 1x ESP32 H2 or C6)
-- 1x microphone
+- 1x microphone (-> find new mic?)
 - 2x levelshifter
 - 4x big cap
 
